@@ -1328,35 +1328,24 @@
       document.getElementById('regSubmitBtn').textContent = 'SENDING CODE...';
       document.getElementById('verifyTargetEmail').textContent = email;
 
-      // Try sending via Resend API directly from browser
+      // Call Vercel Serverless Function to send real email via Resend
       try {
-        await fetch('https://api.resend.com/emails', {
+        const response = await fetch('/api/send-code', {
           method: 'POST',
-          headers: {
-            'Authorization': 'Bearer re_eYsdczXj_KhgQEHwWVdaTUnDDumDJwvtG',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            from: 'Standoff 2 Arena <onboarding@resend.dev>',
-            to: email,
-            subject: `[${generatedCode}] Your Standoff 2 Arena Verification Code`,
-            html: `<div style="font-family:sans-serif;padding:20px;background:#0a0b0e;color:#fff;border-radius:10px;text-align:center;">
-              <h2 style="color:#ff2a44;">STANDOFF 2 ARENA</h2>
-              <p>Your 6-digit confirmation code:</p>
-              <h1 style="letter-spacing:6px;color:#ff2a44;font-size:36px;">${generatedCode}</h1>
-              <p style="color:#888;">Expires in 15 minutes.</p>
-            </div>`
-          })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, code: generatedCode, username })
         });
+        const result = await response.json();
+        console.log('Email send response:', result);
       } catch (err) {
-        console.log('Resend email notice:', err);
+        console.log('Email send error:', err);
       }
 
-      // Automatically fill helper banner and show modal
+      // Show modal
       document.getElementById('demoCodeDisplay').textContent = generatedCode;
       document.getElementById('demoCodeDisplay').style.display = 'inline-block';
       openModal('verifyModal');
-      showToast(`Код отправлен на ${email}! (Тестовый код: ${generatedCode})`, 'fa-envelope');
+      showToast(`Код отправлен на почту ${email}!`, 'fa-envelope');
       document.getElementById('regSubmitBtn').textContent = 'CONTINUE TO VERIFY';
     }
 
