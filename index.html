@@ -180,12 +180,12 @@
     }
 
     .user-profile-badge {
-      display: none;
+      display: flex;
       align-items: center;
       gap: 12px;
       background: var(--bg-card);
       border: 1px solid var(--bg-card-border);
-      padding: 6px 14px 6px 8px;
+      padding: 6px 16px 6px 8px;
       border-radius: 30px;
       cursor: pointer;
       transition: 0.2s;
@@ -193,12 +193,13 @@
 
     .user-profile-badge:hover {
       border-color: var(--accent-red);
+      box-shadow: 0 0 15px var(--accent-red-glow);
     }
 
     .avatar {
       width: 34px;
       height: 34px;
-      background: var(--accent-red);
+      background: linear-gradient(135deg, var(--accent-red), #b80d22);
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -710,33 +711,6 @@
       box-shadow: 0 0 15px var(--accent-red-glow);
     }
 
-    /* CODE PIN BOXES */
-    .code-inputs {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin: 20px 0;
-    }
-
-    .code-digit {
-      width: 50px;
-      height: 60px;
-      background: var(--bg-dark);
-      border: 2px solid var(--bg-card-border);
-      border-radius: 10px;
-      color: var(--accent-red);
-      font-size: 28px;
-      font-weight: 800;
-      text-align: center;
-      font-family: 'Space Grotesk', sans-serif;
-    }
-
-    .code-digit:focus {
-      outline: none;
-      border-color: var(--accent-red);
-      box-shadow: 0 0 15px var(--accent-red-glow);
-    }
-
     /* LEADERBOARD TABLE */
     .table-container {
       background: var(--bg-card);
@@ -837,11 +811,6 @@
     </ul>
 
     <div class="auth-actions">
-      <div id="unauthButtons">
-        <button class="btn btn-outline" onclick="openModal('loginModal')">Log In</button>
-        <button class="btn btn-primary" onclick="openModal('registerModal')">Sign Up</button>
-      </div>
-
       <div id="userProfileBadge" class="user-profile-badge" onclick="switchView('profile')">
         <div class="avatar" id="badgeAvatar">P</div>
         <div class="user-info-text">
@@ -861,7 +830,7 @@
         <div class="hero-content">
           <div class="hero-tag"><i class="fa-solid fa-bolt"></i> Official Competitive Hub</div>
           <h1 class="hero-title">NEXT GEN <span>STANDOFF 2</span> MATCHMAKING</h1>
-          <p class="hero-desc">Face elite players, climb the regional ELO ladder, ban maps in real-time vetoes, and prove your rank in authentic 128-tick style competitive play.</p>
+          <p class="hero-desc">Face elite players, climb the regional ELO ladder, ban maps in real-time vetoes, and prove your rank in authentic competitive play.</p>
           <div style="display: flex; gap: 14px;">
             <button class="btn btn-primary" style="padding: 14px 28px; font-size: 15px;" onclick="document.getElementById('modesSection').scrollIntoView({behavior:'smooth'})">
               <i class="fa-solid fa-gamepad"></i> FIND MATCH NOW
@@ -1103,6 +1072,26 @@
             <div style="font-size: 38px; font-weight: 900; color: var(--accent-red); font-family: 'Space Grotesk';" id="profElo">1000 ELO</div>
           </div>
         </div>
+
+        <!-- EDIT PROFILE FORM -->
+        <div style="margin-top: 30px; padding-top: 25px; border-top: 1px solid var(--bg-card-border);">
+          <h3 style="font-size: 16px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px;">
+            <i class="fa-solid fa-user-pen" style="color: var(--accent-red);"></i> Edit Player Profile
+          </h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; align-items: end;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label>Nickname</label>
+              <input type="text" id="editUsername" class="form-control" placeholder="Enter nickname">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label>Standoff 2 Game ID</label>
+              <input type="text" id="editGameId" class="form-control" placeholder="e.g. 109384918">
+            </div>
+            <button class="btn btn-primary" style="height: 45px;" onclick="saveProfileChanges()">
+              <i class="fa-solid fa-floppy-disk"></i> SAVE CHANGES
+            </button>
+          </div>
+        </div>
       </div>
 
       <h3 style="font-size: 20px; font-weight: 800; text-transform: uppercase; margin-bottom: 20px;">Recent Match History</h3>
@@ -1123,9 +1112,6 @@
           </tbody>
         </table>
       </div>
-      <div style="margin-top: 30px;">
-        <button class="btn btn-outline" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out</button>
-      </div>
     </div>
 
     <!-- TAB 5: RULES -->
@@ -1145,91 +1131,28 @@
 
   </main>
 
-  <!-- MODALS -->
-
-  <!-- LOGIN MODAL -->
-  <div id="loginModal" class="modal-overlay">
+  <!-- MODAL: FIRST VISIT WELCOME / SET NICKNAME & ID -->
+  <div id="welcomeModal" class="modal-overlay">
     <div class="modal-window">
-      <button class="modal-close" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
-      <h2 style="font-size: 24px; font-weight: 900; margin-bottom: 6px; text-transform: uppercase;">Player Login</h2>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Enter your credentials to access matchmaking.</p>
+      <div style="width: 60px; height: 60px; background: rgba(255, 42, 68, 0.1); color: var(--accent-red); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px;">
+        <i class="fa-solid fa-crosshairs"></i>
+      </div>
+      <h2 style="font-size: 22px; font-weight: 900; text-transform: uppercase; margin-bottom: 6px; text-align: center;">Welcome to Arena!</h2>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px; text-align: center;">Enter your player nickname and Standoff 2 ID to start competing instantly.</p>
 
-      <form onsubmit="handleLogin(event)">
+      <form onsubmit="handleInitialSetup(event)">
         <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="loginEmail" class="form-control" placeholder="player@example.com" required>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="loginPass" class="form-control" placeholder="••••••••" required>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px;">LOG IN</button>
-      </form>
-      <p style="text-align: center; margin-top: 18px; font-size: 13px; color: var(--text-dim);">
-        Don't have an account? <a href="#" style="color: var(--accent-red); font-weight: 700; text-decoration: none;" onclick="openModal('registerModal')">Sign Up</a>
-      </p>
-    </div>
-  </div>
-
-  <!-- REGISTER MODAL -->
-  <div id="registerModal" class="modal-overlay">
-    <div class="modal-window">
-      <button class="modal-close" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
-      <h2 style="font-size: 24px; font-weight: 900; margin-bottom: 6px; text-transform: uppercase;">Create Account</h2>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Join the elite competitive Standoff 2 hub.</p>
-
-      <form onsubmit="handleRegister(event)">
-        <div class="form-group">
-          <label>Username</label>
-          <input type="text" id="regUsername" class="form-control" placeholder="S2_Sniper" required>
-        </div>
-        <div class="form-group">
-          <label>Email (For 6-Digit Code)</label>
-          <input type="email" id="regEmail" class="form-control" placeholder="your@email.com" required>
+          <label>Player Nickname</label>
+          <input type="text" id="setupUsername" class="form-control" placeholder="e.g. S2_Sniper" required>
         </div>
         <div class="form-group">
           <label>Standoff 2 Game ID</label>
-          <input type="text" id="regGameId" class="form-control" placeholder="e.g. 109384918" required>
+          <input type="text" id="setupGameId" class="form-control" placeholder="e.g. 109384918" required>
         </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="regPass" class="form-control" placeholder="Minimum 6 characters" required minlength="6">
-        </div>
-        <button type="submit" class="btn btn-primary" id="regSubmitBtn" style="width: 100%; margin-top: 10px; padding: 12px;">CONTINUE TO VERIFY</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px;">
+          START PLAYING
+        </button>
       </form>
-    </div>
-  </div>
-
-  <!-- 6-DIGIT EMAIL CODE VERIFICATION MODAL -->
-  <div id="verifyModal" class="modal-overlay">
-    <div class="modal-window" style="text-align: center;">
-      <div style="width: 60px; height: 60px; background: rgba(255, 42, 68, 0.1); color: var(--accent-red); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px;">
-        <i class="fa-solid fa-envelope-open-text"></i>
-      </div>
-      <h2 style="font-size: 22px; font-weight: 900; text-transform: uppercase; margin-bottom: 6px;">Check Your Inbox</h2>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">We sent a 6-digit verification code to <b id="verifyTargetEmail" style="color: #fff;">email@domain.com</b></p>
-      
-      <div style="background: rgba(255, 42, 68, 0.1); border: 1px dashed var(--accent-red); border-radius: 8px; padding: 8px 12px; margin-bottom: 15px; font-size: 13px; color: #fff;">
-        <span style="color: var(--text-muted);">Тестовый код: </span>
-        <b id="demoCodeDisplay" style="color: var(--accent-red); font-size: 16px; font-family: monospace; letter-spacing: 2px;">749201</b>
-      </div>
-
-      <div class="code-inputs">
-        <input type="text" maxlength="1" class="code-digit" oninput="handlePinInput(this, 1)" id="pin1" autofocus>
-        <input type="text" maxlength="1" class="code-digit" oninput="handlePinInput(this, 2)" id="pin2">
-        <input type="text" maxlength="1" class="code-digit" oninput="handlePinInput(this, 3)" id="pin3">
-        <input type="text" maxlength="1" class="code-digit" oninput="handlePinInput(this, 4)" id="pin4">
-        <input type="text" maxlength="1" class="code-digit" oninput="handlePinInput(this, 5)" id="pin5">
-        <input type="text" maxlength="1" class="code-digit" oninput="handlePinInput(this, 6)" id="pin6">
-      </div>
-
-      <button class="btn btn-primary" style="width: 100%; padding: 12px;" onclick="confirmEmailCode()">
-        VERIFY & ACTIVATE ACCOUNT
-      </button>
-
-      <p style="font-size: 12px; color: var(--text-dim); margin-top: 16px;">
-        Didn't receive code? <a href="#" style="color: var(--accent-red); font-weight: 700; text-decoration: none;" onclick="resendCode()">Resend Code</a>
-      </p>
     </div>
   </div>
 
@@ -1241,20 +1164,16 @@
 
   <!-- JAVASCRIPT APP LOGIC -->
   <script>
-    // Config
-    const API_URL = 'http://localhost:3001/api';
-    let currentUser = JSON.parse(localStorage.getItem('so2_user') || 'null');
-    let authToken = localStorage.getItem('so2_token') || null;
-    let pendingRegData = null;
-    let currentVetoState = {
-      bannedMaps: [],
-      currentTurn: 'Alpha Captain',
-      activeMatchId: 'SO2-MATCH-1049'
-    };
+    // Load Saved User Profile or Null
+    let currentUser = JSON.parse(localStorage.getItem('so2_player_profile') || 'null');
 
     // Initialize UI
     window.addEventListener('DOMContentLoaded', () => {
-      checkAuthState();
+      if (!currentUser) {
+        openModal('welcomeModal');
+      } else {
+        checkAuthState();
+      }
       renderLeaderboard();
       renderMissions();
       renderMatchHistory();
@@ -1292,137 +1211,76 @@
       setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    // Auth State
-    function checkAuthState() {
-      if (currentUser) {
-        document.getElementById('unauthButtons').style.display = 'none';
-        document.getElementById('userProfileBadge').style.display = 'flex';
-        document.getElementById('badgeUsername').textContent = currentUser.username;
-        document.getElementById('badgeAvatar').textContent = currentUser.username[0].toUpperCase();
-        document.getElementById('badgeElo').textContent = `${currentUser.elo || 1000} ELO`;
-
-        // Profile tab info
-        document.getElementById('profUsername').textContent = currentUser.username;
-        document.getElementById('profAvatar').textContent = currentUser.username[0].toUpperCase();
-        document.getElementById('profGameId').textContent = currentUser.gameId || 'Not Linked';
-        document.getElementById('profElo').textContent = `${currentUser.elo || 1000} ELO`;
-      } else {
-        document.getElementById('unauthButtons').style.display = 'flex';
-        document.getElementById('userProfileBadge').style.display = 'none';
-      }
-    }
-
-    let generatedCode = '749201';
-
-    // Register with Email Code flow
-    async function handleRegister(e) {
+    // Handle First Time Setup
+    function handleInitialSetup(e) {
       e.preventDefault();
-      const username = document.getElementById('regUsername').value.trim();
-      const email = document.getElementById('regEmail').value.trim();
-      const gameId = document.getElementById('regGameId').value.trim();
-      const password = document.getElementById('regPass').value;
+      const username = document.getElementById('setupUsername').value.trim();
+      const gameId = document.getElementById('setupGameId').value.trim();
 
-      pendingRegData = { username, email, gameId, password };
-      generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-      
-      document.getElementById('regSubmitBtn').textContent = 'SENDING CODE...';
-      document.getElementById('verifyTargetEmail').textContent = email;
-
-      // Call Vercel Serverless Function to send real email via Resend
-      try {
-        const response = await fetch('/api/send-code', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, code: generatedCode, username })
-        });
-        const result = await response.json();
-        console.log('Email send response:', result);
-      } catch (err) {
-        console.log('Email send error:', err);
-      }
-
-      // Show modal
-      document.getElementById('demoCodeDisplay').textContent = generatedCode;
-      document.getElementById('demoCodeDisplay').style.display = 'inline-block';
-      openModal('verifyModal');
-      showToast(`Код отправлен на почту ${email}!`, 'fa-envelope');
-      document.getElementById('regSubmitBtn').textContent = 'CONTINUE TO VERIFY';
-    }
-
-    function handlePinInput(el, index) {
-      if (el.value.length === 1 && index < 6) {
-        document.getElementById(`pin${index + 1}`).focus();
-      }
-    }
-
-    function confirmEmailCode() {
-      let code = '';
-      for (let i = 1; i <= 6; i++) {
-        code += document.getElementById(`pin${i}`).value;
-      }
-
-      if (code.length < 6) {
-        showToast('Пожалуйста, введите 6-значный код', 'fa-triangle-exclamation');
+      if (!username || !gameId) {
+        showToast('Please fill all fields', 'fa-triangle-exclamation');
         return;
       }
 
-      // Check code
-      if (code !== generatedCode && code !== '123456') {
-        showToast(`Неверный код! Введите: ${generatedCode}`, 'fa-triangle-exclamation');
-        return;
-      }
-
-      // Register user
       currentUser = {
-        username: pendingRegData?.username || 'SniperPro',
-        email: pendingRegData?.email || 'player@standoff.com',
-        gameId: pendingRegData?.gameId || '1049281',
+        username: username,
+        gameId: gameId,
         elo: 1000,
         wins: 0,
         losses: 0
       };
-      authToken = 'demo_token_' + Date.now();
-      localStorage.setItem('so2_user', JSON.stringify(currentUser));
-      localStorage.setItem('so2_token', authToken);
 
+      localStorage.setItem('so2_player_profile', JSON.stringify(currentUser));
       closeModals();
       checkAuthState();
-      showToast(`Добро пожаловать, ${currentUser.username}! Аккаунт активирован!`, 'fa-circle-check');
+      renderLeaderboard();
+      showToast(`Welcome ${username}! Profile created.`, 'fa-circle-check');
     }
 
-    function resendCode() {
-      showToast('New 6-digit code has been dispatched!', 'fa-paper-plane');
+    // Auth & Profile State
+    function checkAuthState() {
+      if (!currentUser) {
+        currentUser = {
+          username: 'Agent_' + Math.floor(1000 + Math.random() * 9000),
+          gameId: '109384918',
+          elo: 1000,
+          wins: 0,
+          losses: 0
+        };
+      }
+
+      // Top Navbar Badge
+      document.getElementById('badgeUsername').textContent = currentUser.username;
+      document.getElementById('badgeAvatar').textContent = currentUser.username[0].toUpperCase();
+      document.getElementById('badgeElo').textContent = `${currentUser.elo || 1000} ELO`;
+
+      // Profile tab info
+      document.getElementById('profUsername').textContent = currentUser.username;
+      document.getElementById('profAvatar').textContent = currentUser.username[0].toUpperCase();
+      document.getElementById('profGameId').textContent = currentUser.gameId || 'Not Linked';
+      document.getElementById('profElo').textContent = `${currentUser.elo || 1000} ELO`;
+
+      // Profile Edit Inputs
+      document.getElementById('editUsername').value = currentUser.username;
+      document.getElementById('editGameId').value = currentUser.gameId || '';
     }
 
-    // Login
-    function handleLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById('loginEmail').value.trim();
-      currentUser = {
-        username: email.split('@')[0],
-        email: email,
-        gameId: '9841245',
-        elo: 1150,
-        wins: 14,
-        losses: 6
-      };
-      authToken = 'demo_token_' + Date.now();
-      localStorage.setItem('so2_user', JSON.stringify(currentUser));
-      localStorage.setItem('so2_token', authToken);
+    // Save Profile Changes
+    function saveProfileChanges() {
+      const newName = document.getElementById('editUsername').value.trim();
+      const newId = document.getElementById('editGameId').value.trim();
 
-      closeModals();
+      if (!newName || !newId) {
+        showToast('Please enter nickname and ID', 'fa-triangle-exclamation');
+        return;
+      }
+
+      currentUser.username = newName;
+      currentUser.gameId = newId;
+      localStorage.setItem('so2_player_profile', JSON.stringify(currentUser));
       checkAuthState();
-      showToast(`Welcome back, ${currentUser.username}!`, 'fa-circle-check');
-    }
-
-    function logout() {
-      localStorage.removeItem('so2_user');
-      localStorage.removeItem('so2_token');
-      currentUser = null;
-      authToken = null;
-      checkAuthState();
-      switchView('matchmaking');
-      showToast('Logged out successfully');
+      renderLeaderboard();
+      showToast('Profile updated successfully!', 'fa-circle-check');
     }
 
     // Matchmaking Queue
@@ -1431,12 +1289,6 @@
     let secondsInQueue = 0;
 
     function toggleQueue(mode) {
-      if (!currentUser) {
-        openModal('loginModal');
-        showToast('Please log in or sign up to play ranked matches', 'fa-lock');
-        return;
-      }
-
       const btn = mode === 'FIVE_VS_FIVE' ? document.getElementById('btnQueue5v5') : document.getElementById('btnQueue2v2');
       const card = mode === 'FIVE_VS_FIVE' ? document.getElementById('card5v5') : document.getElementById('card2v2');
 
@@ -1476,10 +1328,10 @@
       document.getElementById('modesSection').style.display = 'none';
       document.getElementById('activeMatchRoom').style.display = 'block';
 
-      // Setup team rosters
+      // Setup team rosters with current player's name
       const myName = currentUser?.username || 'You';
       document.getElementById('teamAPlayersList').innerHTML = `
-        <div class="player-row"><span>${myName} <span class="captain-tag">CAPTAIN</span></span> <b>1250 ELO</b></div>
+        <div class="player-row"><span>${myName} <span class="captain-tag">CAPTAIN</span></span> <b>${currentUser?.elo || 1000} ELO</b></div>
         <div class="player-row"><span>Apex_Ruler</span> <b>1280 ELO</b></div>
         <div class="player-row"><span>SilentGhost</span> <b>1190 ELO</b></div>
         <div class="player-row"><span>FlashBang99</span> <b>1220 ELO</b></div>
@@ -1496,7 +1348,6 @@
     }
 
     // Map Veto Logic
-    let vetoIndex = 0;
     function banMap(mapName) {
       const cards = Array.from(document.querySelectorAll('.map-card'));
       const targetCard = cards.find(c => c.textContent.includes(mapName));
@@ -1507,7 +1358,6 @@
 
       const remaining = cards.filter(c => !c.classList.contains('banned'));
       if (remaining.length === 1) {
-        // Last map decided
         const picked = remaining[0];
         picked.classList.add('picked');
         const finalMap = picked.querySelector('h4').textContent;
@@ -1528,13 +1378,12 @@
       if (currentUser) {
         currentUser.elo = (currentUser.elo || 1000) + (scoreA > scoreB ? 25 : -20);
         if (scoreA > scoreB) currentUser.wins++; else currentUser.losses++;
-        localStorage.setItem('so2_user', JSON.stringify(currentUser));
+        localStorage.setItem('so2_player_profile', JSON.stringify(currentUser));
         checkAuthState();
       }
 
-      showToast(`Match result recorded! (${scoreA}:${scoreB}) ELO Rating: ${delta}`, 'fa-trophy');
+      showToast(`Match result recorded! (${scoreA}:${scoreB}) ELO: ${delta}`, 'fa-trophy');
       
-      // Reset back to normal view after 2 seconds
       setTimeout(() => {
         document.getElementById('activeMatchRoom').style.display = 'none';
         document.getElementById('modesSection').style.display = 'block';
@@ -1544,18 +1393,24 @@
 
     // Leaderboard Render
     function renderLeaderboard() {
+      const myName = currentUser?.username || 'You';
+      const myId = currentUser?.gameId || '109384918';
+      const myElo = currentUser?.elo || 1000;
+
       const topPlayers = [
         { rank: 1, name: 'Zeus_SO2', gameId: '1092841', elo: 2450, winrate: '78%', wl: '142/40' },
         { rank: 2, name: 'NightmareX', gameId: '9841029', elo: 2380, winrate: '74%', wl: '128/45' },
         { rank: 3, name: 'S1mple_AWP', gameId: '4720194', elo: 2310, winrate: '71%', wl: '110/44' },
-        { rank: 4, name: 'Vortex_Kill', gameId: '7839201', elo: 2190, winrate: '68%', wl: '95/45' },
-        { rank: 5, name: 'CyberDemon', gameId: '3829104', elo: 2120, winrate: '65%', wl: '88/48' },
-        { rank: 6, name: 'GhostSniper', gameId: '5729102', elo: 2050, winrate: '63%', wl: '82/48' }
+        { rank: 4, name: myName + ' (You)', gameId: myId, elo: myElo, winrate: '100%', wl: `${currentUser?.wins || 0}/${currentUser?.losses || 0}` },
+        { rank: 5, name: 'Vortex_Kill', gameId: '7839201', elo: 980, winrate: '68%', wl: '95/45' },
+        { rank: 6, name: 'CyberDemon', gameId: '3829104', elo: 920, winrate: '65%', wl: '88/48' }
       ];
 
-      const html = topPlayers.map(p => `
-        <tr>
-          <td><span class="rank-number rank-${p.rank}">#${p.rank}</span></td>
+      topPlayers.sort((a, b) => b.elo - a.elo);
+
+      const html = topPlayers.map((p, index) => `
+        <tr style="${p.name.includes('(You)') ? 'background: rgba(255, 42, 68, 0.08); border-left: 3px solid var(--accent-red);' : ''}">
+          <td><span class="rank-number rank-${index + 1}">#${index + 1}</span></td>
           <td><b>${p.name}</b></td>
           <td style="color: var(--text-dim);">${p.gameId}</td>
           <td><span style="color: var(--accent-red); font-weight: 800; font-family: 'Space Grotesk';">${p.elo}</span></td>
