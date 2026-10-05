@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String
+  gameId       String?  @unique  // Standoff 2 ID
+  elo          Int      @default(1000)
+  wins         Int      @default(0)
+  losses       Int      @default(0)
+  points       Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  matchPlayers     MatchPlayer[]
+  missionsProgress MissionProgress[]
+  tournamentPlayers TournamentPlayer[]
+  eloHistory       EloHistory[]
+
+  @@map("users")
+}
+
+model Match {
+  id         String      @id @default(cuid())
+  mode       MatchMode
+  status     MatchStatus @default(PENDING)
+  map        String
+  teamAScore Int         @default(0)
+  teamBScore Int         @default(0)
+  winningSide TeamSide?
+  startedAt  DateTime?
+  endedAt    DateTime?
+  createdAt  DateTime    @default(now())
+
+  players    MatchPlayer[]
+  vetoBans   VetoBan[]
+
+  @@map("matches")
+}
+
+model MatchPlayer {
+  id       String   @id @default(cuid())
+  matchId  String
+  userId   String
+  team     TeamSide
+  isCaptain Boolean @default(false)
+  kills    Int      @default(0)
+  deaths   Int      @default(0)
+  eloDelta Int      @default(0)
+
+  match    Match    @relation(fields: [matchId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@unique([matchId, userId])
+  @@map("match_players")
+}
+
+model VetoBan {
+  id        String   @id @default(cuid())
+  matchId   String
+  map       String
+  bannedBy  TeamSide
+  order     Int
+  createdAt DateTime @default(now())
+
+  match     Match    @relation(fields: [matchId], references: [id])
+
+  @@map("veto_bans")
+}
+
+model EloHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  matchId   String?
+  delta     Int
+  eloAfter  Int
+  reason    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("elo_history")
+}
+
+model Mission {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  type        MissionType
+  target      Int
+  reward      Int
+  weekStart   DateTime
+  weekEnd     DateTime
+  isActive    Boolean       @default(true)
+
+  progress    MissionProgress[]
+
+  @@map("missions")
+}
+
+model MissionProgress {
+  id        String   @id @default(cuid())
+  userId    String
+  missionId String
+  current   Int      @default(0)
+  completed Boolean  @default(false)
+  claimedAt DateTime?
+
+  user      User     @relation(fields: [userId], references: [id])
+  mission   Mission  @relation(fields: [missionId], references: [id])
+
+  @@unique([userId, missionId])
+  @@map("mission_progress")
+}
+
+model Tournament {
+  id          String            @id @default(cuid())
+  title       String
+  description String?
+  status      TournamentStatus  @default(UPCOMING)
+  maxPlayers  Int               @default(16)
+  prizePool   String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  createdAt   DateTime          @default(now())
+
+  players     TournamentPlayer[]
+  rounds      TournamentRound[]
+
+  @@map("tournaments")
+}
+
+model TournamentPlayer {
+  id           String     @id @default(cuid())
+  tournamentId String
+  userId       String
+  seed         Int?
+  eliminated   Boolean    @default(false)
+  registeredAt DateTime   @default(now())
+
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
+
+  @@unique([tournamentId, userId])
+  @@map("tournament_players")
+}
+
+model TournamentRound {
+  id           String     @id @default(cuid())
+  tournamentId String
+  roundNumber  Int
+  matchId      String?
+  player1Id    String?
+  player2Id    String?
+  winnerId     String?
+
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+
+  @@map("tournament_rounds")
+}
+
+enum MatchMode {
+  FIVE_VS_FIVE
+  TWO_VS_TWO
+}
+
+enum MatchStatus {
+  PENDING
+  VETO
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TeamSide {
+  TEAM_A
+  TEAM_B
+}
+
+enum MissionType {
+  WIN_MATCHES
+  GET_KILLS
+  PLAY_MATCHES
+  WIN_IN_MODE
+}
+
+enum TournamentStatus {
+  UPCOMING
+  REGISTRATION
+  IN_PROGRESS
+  COMPLETED
+}
