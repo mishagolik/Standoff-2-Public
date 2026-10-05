@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STANDOFF 2 ARENA | Competitive Matchmaking & ELO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-dark: #0a0b0e;
+      --bg-card: #12141a;
+      --bg-card-hover: #181b24;
+      --bg-card-border: rgba(255, 255, 255, 0.08);
+      
+      --accent-red: #ff2a44;
+      --accent-red-hover: #ff455d;
+      --accent-red-glow: rgba(255, 42, 68, 0.35);
+      
+      --pure-white: #ffffff;
+      --text-main: #f0f2f5;
+      --text-muted: #8c93a8;
+      --text-dim: #5a6072;
+      
+      --team-ct: #388bfd;
+      --team-t: #ff2a44;
+      
+      --success: #20c997;
+      --warning: #ffc107;
+      --danger: #ff2a44;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(255, 42, 68, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.04) 0%, transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* HEADER / NAVBAR */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 48px;
+      background: rgba(10, 11, 14, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--bg-card-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent-red), #990014);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px var(--accent-red-glow);
+      font-weight: 900;
+      font-size: 20px;
+      color: var(--pure-white);
+      transform: skew(-6deg);
+    }
+
+    .brand-title {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--pure-white);
+    }
+
+    .brand-title span {
+      color: var(--accent-red);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-item {
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: var(--pure-white);
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .nav-item.active {
+      border-bottom: 2px solid var(--accent-red);
+      padding-bottom: 4px;
+    }
+
+    .auth-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .btn {
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--bg-card-border);
+      color: var(--pure-white);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary {
+      background: var(--accent-red);
+      color: var(--pure-white);
+      box-shadow: 0 4px 20px var(--accent-red-glow);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-red-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(255, 42, 68, 0.5);
+    }
+
+    .user-profile-badge {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      padding: 6px 14px 6px 8px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .user-profile-badge:hover {
+      border-color: var(--accent-red);
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      background: var(--accent-red);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: var(--pure-white);
+      font-size: 14px;
+    }
+
+    .user-info-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--pure-white);
+    }
+
+    .user-elo {
+      font-size: 11px;
+      color: var(--accent-red);
+      font-weight: 800;
+    }
+
+    /* MAIN CONTAINER */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* TAB VIEWS */
+    .view-tab {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .view-tab.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* HERO SECTION */
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+      background: linear-gradient(135deg, rgba(255, 42, 68, 0.12) 0%, rgba(18, 20, 26, 0.6) 100%);
+      border: 1px solid rgba(255, 42, 68, 0.25);
+      border-radius: 20px;
+      padding: 48px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      right: -100px;
+      top: -100px;
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, var(--accent-red-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      max-width: 600px;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 42, 68, 0.15);
+      border: 1px solid rgba(255, 42, 68, 0.3);
+      color: var(--accent-red);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .hero-title {
+      font-size: 46px;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .hero-title span {
+      color: var(--accent-red);
+      text-shadow: 0 0 30px var(--accent-red-glow);
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .stats-counter-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 14px;
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      transition: 0.2s;
+    }
+
+    .stat-card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(255, 42, 68, 0.1);
+      color: var(--accent-red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .stat-info h4 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--pure-white);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .stat-info p {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* MATCHMAKING QUEUE SECTION */
+    .section-title {
+      font-size: 24px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title i {
+      color: var(--accent-red);
+    }
+
+    .mode-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-bottom: 40px;
+    }
+
+    .mode-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 18px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 260px;
+    }
+
+    .mode-card:hover {
+      border-color: var(--accent-red);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transform: translateY(-4px);
+    }
+
+    .mode-badge {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .mode-card.active-queue {
+      border-color: var(--accent-red);
+      background: linear-gradient(135deg, rgba(255, 42, 68, 0.15) 0%, var(--bg-card) 100%);
+    }
+
+    .mode-card h3 {
+      font-size: 28px;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      color: var(--pure-white);
+    }
+
+    .mode-card p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .mode-meta {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .mode-meta span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* MATCH LOBBY / VETO / ROOM INTERFACE */
+    .lobby-modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 20px;
+      padding: 36px;
+      margin-bottom: 40px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+    }
+
+    .lobby-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--bg-card-border);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+
+    .teams-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 30px;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .team-column {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .team-column.team-a {
+      border-top: 4px solid var(--team-t);
+    }
+
+    .team-column.team-b {
+      border-top: 4px solid var(--team-ct);
+    }
+
+    .team-title {
+      font-size: 18px;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .player-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: var(--bg-card);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .captain-tag {
+      background: #ffc107;
+      color: #000;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+
+    .vs-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--accent-red);
+      color: var(--pure-white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 16px;
+      box-shadow: 0 0 20px var(--accent-red-glow);
+    }
+
+    /* MAP VETO */
+    .map-veto-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .map-card {
+      background: var(--bg-card-hover);
+      border: 2px solid var(--bg-card-border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.2s;
+      position: relative;
+    }
+
+    .map-card:hover:not(.banned):not(.picked) {
+      border-color: var(--accent-red);
+      transform: scale(1.03);
+    }
+
+    .map-card.banned {
+      opacity: 0.35;
+      filter: grayscale(1);
+      cursor: not-allowed;
+      border-color: #555;
+    }
+
+    .map-card.banned::after {
+      content: 'BANNED';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-15deg);
+      background: var(--accent-red);
+      color: #fff;
+      font-weight: 900;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+
+    .map-card.picked {
+      border-color: #20c997;
+      box-shadow: 0 0 20px rgba(32, 201, 151, 0.3);
+    }
+
+    /* RESULT SUBMISSION */
+    .submit-box {
+      background: rgba(255, 42, 68, 0.05);
+      border: 1px solid rgba(255, 42, 68, 0.2);
+      border-radius: 14px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .score-inputs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .score-field {
+      width: 90px;
+      height: 60px;
+      background: var(--bg-dark);
+      border: 2px solid var(--bg-card-border);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 32px;
+      font-weight: 900;
+      text-align: center;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .score-field:focus {
+      outline: none;
+      border-color: var(--accent-red);
+    }
+
+    /* MODALS */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-window {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 440px;
+      padding: 36px;
+      position: relative;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
+      animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 20px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .modal-close:hover {
+      color: var(--pure-white);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-dark);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 10px;
+      color: var(--pure-white);
+      font-size: 15px;
+      font-family: inherit;
+      transition: 0.2s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent-red);
+      box-shadow: 0 0 15px var(--accent-red-glow);
+    }
+
+    /* CODE PIN BOXES */
+    .code-inputs {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .code-digit {
+      width: 50px;
+      height: 60px;
+      background: var(--bg-dark);
+      border: 2px solid var(--bg-card-border);
+      border-radius: 10px;
+      color: var(--accent-red);
+      font-size: 28px;
+      font-weight: 800;
+      text-align: center;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .code-digit:focus {
+      outline: none;
+      border-color: var(--accent-red);
+      box-shadow: 0 0 15px var(--accent-red-glow);
+    }
+
+    /* LEADERBOARD TABLE */
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .custom-table th {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 16px 24px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--bg-card-border);
+    }
+
+    .custom-table td {
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      font-size: 14px;
+    }
+
+    .custom-table tr:hover td {
+      background: var(--bg-card-hover);
+    }
+
+    .rank-number {
+      font-weight: 900;
+      font-size: 16px;
+      color: var(--text-dim);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .rank-1 { color: #ffd700 !important; }
+    .rank-2 { color: #c0c0c0 !important; }
+    .rank-3 { color: #cd7f32 !important; }
+
+    /* TOAST */
+    .toast-box {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--accent-red);
+      padding: 14px 24px;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toast-box.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 900px) {
+      header { padding: 16px 20px; }
+      .hero { flex-direction: column; padding: 28px; text-align: center; }
+      .stats-counter-bar { grid-template-columns: 1fr 1fr; }
+      .mode-cards { grid-template-columns: 1fr; }
+      .teams-grid { grid-template-columns: 1fr; }
+      .map-veto-grid { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVIGATION HEADER -->
+  <header>
+    <a class="brand" onclick="switchView('matchmaking')">
+      <div class="brand-logo">S2</div>
+      <div class="brand-title">STANDOFF 2 <span>ARENA</span></div>
+    </a>
+
+    <ul class="nav-links">
+      <li class="nav-item active" onclick="switchView('matchmaking')"><i class="fa-solid fa-crosshairs"></i> Play</li>
+      <li class="nav-item" onclick="switchView('leaderboard')"><i class="fa-solid fa-trophy"></i> Leaderboard</li>
+      <li class="nav-item" onclick="switchView('missions')"><i class="fa-solid fa-bullseye"></i> Missions</li>
+      <li class="nav-item" onclick="switchView('rules')"><i class="fa-solid fa-shield-halved"></i> Rules</li>
+    </ul>
+
+    <div class="auth-actions">
+      <div id="unauthButtons">
+        <button class="btn btn-outline" onclick="openModal('loginModal')">Log In</button>
+        <button class="btn btn-primary" onclick="openModal('registerModal')">Sign Up</button>
+      </div>
+
+      <div id="userProfileBadge" class="user-profile-badge" onclick="switchView('profile')">
+        <div class="avatar" id="badgeAvatar">P</div>
+        <div class="user-info-text">
+          <span class="user-name" id="badgeUsername">Player</span>
+          <span class="user-elo" id="badgeElo">1000 ELO</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER -->
+  <main class="container">
+
+    <!-- TAB 1: MATCHMAKING & PLAY -->
+    <div id="view-matchmaking" class="view-tab active">
+      <section class="hero">
+        <div class="hero-content">
+          <div class="hero-tag"><i class="fa-solid fa-bolt"></i> Official Competitive Hub</div>
+          <h1 class="hero-title">NEXT GEN <span>STANDOFF 2</span> MATCHMAKING</h1>
+          <p class="hero-desc">Face elite players, climb the regional ELO ladder, ban maps in real-time vetoes, and prove your rank in authentic 128-tick style competitive play.</p>
+          <div style="display: flex; gap: 14px;">
+            <button class="btn btn-primary" style="padding: 14px 28px; font-size: 15px;" onclick="document.getElementById('modesSection').scrollIntoView({behavior:'smooth'})">
+              <i class="fa-solid fa-gamepad"></i> FIND MATCH NOW
+            </button>
+            <button class="btn btn-outline" onclick="switchView('leaderboard')">
+              <i class="fa-solid fa-ranking-star"></i> VIEW TOP 100
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- LIVE STATS BANNER -->
+      <div class="stats-counter-bar">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+          <div class="stat-info">
+            <h4 id="statTotalPlayers">2,480</h4>
+            <p>Active Players</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          <div class="stat-info">
+            <h4 id="statMatchesPlayed">14,920</h4>
+            <p>Matches Completed</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-fire"></i></div>
+          <div class="stat-info">
+            <h4>128 Tick</h4>
+            <p>Competitive Rules</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-award"></i></div>
+          <div class="stat-info">
+            <h4>Level 10</h4>
+            <p>Max ELO Tier</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVE MATCH / ROOM STATE (Dynamically shown when in game) -->
+      <div id="activeMatchRoom" style="display: none;" class="lobby-modal-card">
+        <div class="lobby-header">
+          <div>
+            <div class="hero-tag" id="matchRoomModeTag">5v5 COMPETITIVE</div>
+            <h2 style="font-size: 26px; font-weight: 900;" id="matchRoomTitle">MATCH #SO2-9841</h2>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 12px; color: var(--text-dim); text-transform: uppercase; font-weight: 800;">Status</div>
+            <div style="font-size: 18px; font-weight: 900; color: var(--accent-red);" id="matchRoomStatus">MAP VETO PHASE</div>
+          </div>
+        </div>
+
+        <div class="teams-grid">
+          <!-- TEAM A -->
+          <div class="team-column team-a">
+            <div class="team-title">
+              <span style="color: var(--team-t);"><i class="fa-solid fa-skull"></i> TEAM ALPHA</span>
+              <span id="teamAElo">1250 AVG</span>
+            </div>
+            <div id="teamAPlayersList">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+
+          <div class="vs-circle">VS</div>
+
+          <!-- TEAM B -->
+          <div class="team-column team-b">
+            <div class="team-title">
+              <span style="color: var(--team-ct);"><i class="fa-solid fa-shield"></i> TEAM BRAVO</span>
+              <span id="teamBElo">1240 AVG</span>
+            </div>
+            <div id="teamBPlayersList">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+        </div>
+
+        <!-- MAP VETO INTERFACE -->
+        <div id="vetoPhaseSection">
+          <h3 style="font-size: 18px; text-transform: uppercase; margin-bottom: 8px;">
+            <i class="fa-solid fa-ban" style="color: var(--accent-red);"></i> Map Veto Phase: <span id="vetoTurnLabel" style="color: var(--accent-red);">Alpha Captain's Turn</span>
+          </h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Captains ban maps until the final battleground is decided.</p>
+
+          <div class="map-veto-grid" id="vetoGrid">
+            <div class="map-card" onclick="banMap('Sandstone')">
+              <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">Sandstone</h4>
+              <p style="font-size: 11px; color: var(--text-dim);">Defuse</p>
+            </div>
+            <div class="map-card" onclick="banMap('Rust')">
+              <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">Rust</h4>
+              <p style="font-size: 11px; color: var(--text-dim);">Defuse</p>
+            </div>
+            <div class="map-card" onclick="banMap('Province')">
+              <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">Province</h4>
+              <p style="font-size: 11px; color: var(--text-dim);">Defuse</p>
+            </div>
+            <div class="map-card" onclick="banMap('Breeze')">
+              <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">Breeze</h4>
+              <p style="font-size: 11px; color: var(--text-dim);">Defuse</p>
+            </div>
+            <div class="map-card" onclick="banMap('Dune')">
+              <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">Dune</h4>
+              <p style="font-size: 11px; color: var(--text-dim);">Defuse</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CUSTOM LOBBY INFO (When veto is done) -->
+        <div id="roomInGameSection" style="display: none; margin-top: 30px;">
+          <div style="background: rgba(32, 201, 151, 0.1); border: 1px solid rgba(32, 201, 151, 0.3); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px;">
+            <h3 style="color: #20c997; font-size: 20px; text-transform: uppercase; margin-bottom: 8px;">
+              <i class="fa-solid fa-gamepad"></i> Custom Game Lobby Details
+            </h3>
+            <p style="color: #d1f2e8; font-size: 14px; margin-bottom: 12px;">Open Standoff 2 on your device, create/join Private Match, and invite players via Game ID.</p>
+            <div style="display: inline-flex; gap: 20px; background: var(--bg-dark); padding: 10px 24px; border-radius: 8px; font-weight: 800;">
+              <div>Selected Map: <span style="color: #20c997;" id="finalPickedMap">Sandstone</span></div>
+              <div>Server: <span style="color: #fff;">Russia / EU Central</span></div>
+            </div>
+          </div>
+
+          <!-- RESULT SUBMITTER (Captains submit score) -->
+          <div class="submit-box">
+            <h3 style="font-size: 18px; text-transform: uppercase; margin-bottom: 6px;">
+              <i class="fa-solid fa-clipboard-check" style="color: var(--accent-red);"></i> Submit Match Score (Captain Verification)
+            </h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Enter the final match round score. When both captains agree, ELO is automatically awarded.</p>
+
+            <div class="score-inputs">
+              <div style="text-align: center;">
+                <label style="display: block; font-size: 12px; font-weight: 800; color: var(--team-t); margin-bottom: 6px;">ALPHA SCORE</label>
+                <input type="number" id="scoreTeamA" class="score-field" value="10" min="0" max="16">
+              </div>
+              <div style="font-size: 28px; font-weight: 900; color: var(--text-dim); margin-top: 15px;">:</div>
+              <div style="text-align: center;">
+                <label style="display: block; font-size: 12px; font-weight: 800; color: var(--team-ct); margin-bottom: 6px;">BRAVO SCORE</label>
+                <input type="number" id="scoreTeamB" class="score-field" value="7" min="0" max="16">
+              </div>
+            </div>
+
+            <div style="text-align: center;">
+              <button class="btn btn-primary" onclick="submitMatchResult()">
+                <i class="fa-solid fa-check-double"></i> CONFIRM & FINALIZE RESULT
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUEUE SELECTION SECTION -->
+      <div id="modesSection">
+        <h2 class="section-title"><i class="fa-solid fa-gamepad"></i> Select Matchmaking Mode</h2>
+        <div class="mode-cards">
+          <!-- 5v5 Card -->
+          <div class="mode-card" id="card5v5">
+            <div class="mode-badge">Ranked Competitive</div>
+            <div>
+              <h3>5v5 Competitive</h3>
+              <p>Full team tactical defuse mode with 10 players, map veto, and MR10 ruleset.</p>
+              <div class="mode-meta">
+                <span><i class="fa-solid fa-users"></i> 10 Players</span>
+                <span><i class="fa-solid fa-clock"></i> ~15-20 Min</span>
+                <span><i class="fa-solid fa-chart-line"></i> +/- 25 ELO</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" id="btnQueue5v5" onclick="toggleQueue('FIVE_VS_FIVE')">
+              <i class="fa-solid fa-play"></i> QUEUE 5V5 (SOLO/PARTY)
+            </button>
+          </div>
+
+          <!-- 2v2 Card -->
+          <div class="mode-card" id="card2v2">
+            <div class="mode-badge">Wingman Partner</div>
+            <div>
+              <h3>2v2 Wingman</h3>
+              <p>Fast-paced duo defuse showdown on single bombsite maps.</p>
+              <div class="mode-meta">
+                <span><i class="fa-solid fa-user-group"></i> 4 Players</span>
+                <span><i class="fa-solid fa-clock"></i> ~8-12 Min</span>
+                <span><i class="fa-solid fa-chart-line"></i> +/- 20 ELO</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" id="btnQueue2v2" onclick="toggleQueue('TWO_VS_TWO')">
+              <i class="fa-solid fa-play"></i> QUEUE 2V2 WINGMAN
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: LEADERBOARD -->
+    <div id="view-leaderboard" class="view-tab">
+      <h2 class="section-title"><i class="fa-solid fa-trophy"></i> Global Ranked Leaderboard</h2>
+      <div class="table-container">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>Standoff 2 ID</th>
+              <th>ELO Rating</th>
+              <th>Winrate</th>
+              <th>W / L</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3: MISSIONS -->
+    <div id="view-missions" class="view-tab">
+      <h2 class="section-title"><i class="fa-solid fa-bullseye"></i> Weekly Combat Missions</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;" id="missionsList">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- TAB 4: PROFILE -->
+    <div id="view-profile" class="view-tab">
+      <div style="background: var(--bg-card); border: 1px solid var(--bg-card-border); border-radius: 20px; padding: 40px; margin-bottom: 30px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+          <div style="display: flex; align-items: center; gap: 24px;">
+            <div class="avatar" style="width: 70px; height: 70px; font-size: 28px;" id="profAvatar">P</div>
+            <div>
+              <h2 style="font-size: 28px; font-weight: 900; margin-bottom: 4px;" id="profUsername">Player</h2>
+              <p style="color: var(--text-muted); font-size: 14px;">Standoff 2 ID: <span id="profGameId" style="color: #fff; font-weight: 700;">18492019</span></p>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 13px; color: var(--text-dim); text-transform: uppercase; font-weight: 800;">Current Rating</div>
+            <div style="font-size: 38px; font-weight: 900; color: var(--accent-red); font-family: 'Space Grotesk';" id="profElo">1000 ELO</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 20px; font-weight: 800; text-transform: uppercase; margin-bottom: 20px;">Recent Match History</h3>
+      <div class="table-container">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Mode</th>
+              <th>Map</th>
+              <th>Result</th>
+              <th>Score</th>
+              <th>ELO Delta</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="profileMatchesBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top: 30px;">
+        <button class="btn btn-outline" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out</button>
+      </div>
+    </div>
+
+    <!-- TAB 5: RULES -->
+    <div id="view-rules" class="view-tab">
+      <h2 class="section-title"><i class="fa-solid fa-shield-halved"></i> Competitive Match Rules</h2>
+      <div style="background: var(--bg-card); border: 1px solid var(--bg-card-border); border-radius: 16px; padding: 32px; line-height: 1.8; color: var(--text-muted);">
+        <h4 style="color: #fff; font-size: 18px; margin-bottom: 10px;">1. Captain Score Submissions</h4>
+        <p style="margin-bottom: 20px;">Both Alpha and Bravo captains must submit match scores after game completion. If scores match, ELO is updated instantly. In case of conflicting scores, moderators will review screenshot evidence.</p>
+        
+        <h4 style="color: #fff; font-size: 18px; margin-bottom: 10px;">2. Map Veto Regulations</h4>
+        <p style="margin-bottom: 20px;">Captains have 45 seconds per turn to ban maps. If a captain is AFK, a random ban will be automatically executed.</p>
+
+        <h4 style="color: #fff; font-size: 18px; margin-bottom: 10px;">3. Fair Play & Anti-Cheat</h4>
+        <p>Using third-party injectors, scripts, emulators with unfair macros, or toxic behavior results in an immediate permanent ban and rating reset.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODALS -->
+
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="modal-overlay">
+    <div class="modal-window">
+      <button class="modal-close" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      <h2 style="font-size: 24px; font-weight: 900; margin-bottom: 6px; text-transform: uppercase;">Player Login</h2>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Enter your credentials to access matchmaking.</p>
+
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="loginEmail" class="form-control" placeholder="player@example.com" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPass" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px;">LOG IN</button>
+      </form>
+      <p style="text-align: center; margin-top: 18px; font-size: 13px; color: var(--text-dim);">
+        Don't have an account? <a href="#" style="color: var(--accent-red); font-weight: 700; text-decoration: none;" onclick="openModal('registerModal')">Sign Up</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- REGISTER MODAL -->
+  <div id="registerModal" class="modal-overlay">
+    <div class="modal-window">
+      <button class="modal-close" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+      <h2 style="font-size: 24px; font-weight: 900; margin-bottom: 6px; text-transform: uppercase;">Create Account</h2>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Join the elite competitive Standoff 2 hub.</p>
+
+      <form onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="regUsername" class="form-control" placeholder="S2_Sniper" required>
+        </div>
+        <div class="form-group">
+          <label>Email (For 6-Digit Code)</label>
+          <input type="email" id="regEmail" class="form-control" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Standoff 2 Game ID</label>
+          <input type="text" id="regGameId" class="form-control" placeholder="e.g. 109384918" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="regPass" class="form-control" placeholder="Minimum 6 characters" required minlength="6">
+        </div>
+        <button type="submit" class="btn btn-primary" id="regSubmitBtn" style="width: 100%; margin-top: 10px; padding: 12px;">CONTINUE TO VERIFY</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6-DIGIT EMAIL CODE VERIFICATION MODAL -->
+  <div id="verifyModal" class="modal-overlay">
+    <div class="modal-window" style="text-align: center;">
+      <div style="width: 60px; height: 60px; background: rgba(255, 42, 68, 0.1); color: var(--accent-red); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px;">
+        <i class="fa-solid fa-envelope-open-text"></i>
+      </div>
+      <h2 style="font-size: 22px; font-weight: 900; text-transform: uppercase; margin-bottom: 6px;">Check Your Inbox</h2>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">We sent a 6-digit verification code to <b id="verifyTargetEmail" style="color: #fff;">email@domain.com</b></p>
+      
+      <div style="background: rgba(255, 42, 68, 0.1); border: 1px dashed var(--accent-red); border-radius: 8px; padding: 8px 12px; margin-bottom: 15px; font-size: 13px; color: #fff;">
+        <span style="color: var(--text-muted);">Тестовый код: </span>
+        <b id="demoCodeDisplay" style="color: var(--accent-red); font-size: 16px; font-family: monospace; letter-spacing: 2px;">749201</b>
+      </div>
+
+      <div class="code-inputs">
+        <input type="text" maxlength="1" class="code-digit" oninput="handlePinInput(this, 1)" id="pin1" autofocus>
+        <input type="text" maxlength="1" class="code-digit" oninput="handlePinInput(this, 2)" id="pin2">
+        <input type="text" maxlength="1" class="code-digit" oninput="handlePinInput(this, 3)" id="pin3">
+        <input type="text" maxlength="1" class="code-digit" oninput="handlePinInput(this, 4)" id="pin4">
+        <input type="text" maxlength="1" class="code-digit" oninput="handlePinInput(this, 5)" id="pin5">
+        <input type="text" maxlength="1" class="code-digit" oninput="handlePinInput(this, 6)" id="pin6">
+      </div>
+
+      <button class="btn btn-primary" style="width: 100%; padding: 12px;" onclick="confirmEmailCode()">
+        VERIFY & ACTIVATE ACCOUNT
+      </button>
+
+      <p style="font-size: 12px; color: var(--text-dim); margin-top: 16px;">
+        Didn't receive code? <a href="#" style="color: var(--accent-red); font-weight: 700; text-decoration: none;" onclick="resendCode()">Resend Code</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastBox" class="toast-box">
+    <i class="fa-solid fa-circle-check" id="toastIcon" style="color: var(--accent-red); font-size: 18px;"></i>
+    <span id="toastMessage">Action completed</span>
+  </div>
+
+  <!-- JAVASCRIPT APP LOGIC -->
+  <script>
+    // Config
+    const API_URL = 'http://localhost:3001/api';
+    let currentUser = JSON.parse(localStorage.getItem('so2_user') || 'null');
+    let authToken = localStorage.getItem('so2_token') || null;
+    let pendingRegData = null;
+    let currentVetoState = {
+      bannedMaps: [],
+      currentTurn: 'Alpha Captain',
+      activeMatchId: 'SO2-MATCH-1049'
+    };
+
+    // Initialize UI
+    window.addEventListener('DOMContentLoaded', () => {
+      checkAuthState();
+      renderLeaderboard();
+      renderMissions();
+      renderMatchHistory();
+    });
+
+    // View Routing
+    function switchView(tabId) {
+      document.querySelectorAll('.view-tab').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      
+      const target = document.getElementById(`view-${tabId}`);
+      if (target) target.classList.add('active');
+
+      const navEl = Array.from(document.querySelectorAll('.nav-item')).find(el => el.textContent.toLowerCase().includes(tabId));
+      if (navEl) navEl.classList.add('active');
+    }
+
+    // Modal Handling
+    function openModal(id) {
+      closeModals();
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeModals() {
+      document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+    }
+
+    // Toast
+    function showToast(msg, icon = 'fa-circle-check') {
+      const toast = document.getElementById('toastBox');
+      document.getElementById('toastMessage').textContent = msg;
+      document.getElementById('toastIcon').className = `fa-solid ${icon}`;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // Auth State
+    function checkAuthState() {
+      if (currentUser) {
+        document.getElementById('unauthButtons').style.display = 'none';
+        document.getElementById('userProfileBadge').style.display = 'flex';
+        document.getElementById('badgeUsername').textContent = currentUser.username;
+        document.getElementById('badgeAvatar').textContent = currentUser.username[0].toUpperCase();
+        document.getElementById('badgeElo').textContent = `${currentUser.elo || 1000} ELO`;
+
+        // Profile tab info
+        document.getElementById('profUsername').textContent = currentUser.username;
+        document.getElementById('profAvatar').textContent = currentUser.username[0].toUpperCase();
+        document.getElementById('profGameId').textContent = currentUser.gameId || 'Not Linked';
+        document.getElementById('profElo').textContent = `${currentUser.elo || 1000} ELO`;
+      } else {
+        document.getElementById('unauthButtons').style.display = 'flex';
+        document.getElementById('userProfileBadge').style.display = 'none';
+      }
+    }
+
+    let generatedCode = '749201';
+
+    // Register with Email Code flow
+    async function handleRegister(e) {
+      e.preventDefault();
+      const username = document.getElementById('regUsername').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const gameId = document.getElementById('regGameId').value.trim();
+      const password = document.getElementById('regPass').value;
+
+      pendingRegData = { username, email, gameId, password };
+      generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      document.getElementById('regSubmitBtn').textContent = 'SENDING CODE...';
+      document.getElementById('verifyTargetEmail').textContent = email;
+
+      // Try sending via Resend API directly from browser
+      try {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer re_eYsdczXj_KhgQEHwWVdaTUnDDumDJwvtG',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: 'Standoff 2 Arena <onboarding@resend.dev>',
+            to: email,
+            subject: `[${generatedCode}] Your Standoff 2 Arena Verification Code`,
+            html: `<div style="font-family:sans-serif;padding:20px;background:#0a0b0e;color:#fff;border-radius:10px;text-align:center;">
+              <h2 style="color:#ff2a44;">STANDOFF 2 ARENA</h2>
+              <p>Your 6-digit confirmation code:</p>
+              <h1 style="letter-spacing:6px;color:#ff2a44;font-size:36px;">${generatedCode}</h1>
+              <p style="color:#888;">Expires in 15 minutes.</p>
+            </div>`
+          })
+        });
+      } catch (err) {
+        console.log('Resend email notice:', err);
+      }
+
+      // Automatically fill helper banner and show modal
+      document.getElementById('demoCodeDisplay').textContent = generatedCode;
+      document.getElementById('demoCodeDisplay').style.display = 'inline-block';
+      openModal('verifyModal');
+      showToast(`Код отправлен на ${email}! (Тестовый код: ${generatedCode})`, 'fa-envelope');
+      document.getElementById('regSubmitBtn').textContent = 'CONTINUE TO VERIFY';
+    }
+
+    function handlePinInput(el, index) {
+      if (el.value.length === 1 && index < 6) {
+        document.getElementById(`pin${index + 1}`).focus();
+      }
+    }
+
+    function confirmEmailCode() {
+      let code = '';
+      for (let i = 1; i <= 6; i++) {
+        code += document.getElementById(`pin${i}`).value;
+      }
+
+      if (code.length < 6) {
+        showToast('Пожалуйста, введите 6-значный код', 'fa-triangle-exclamation');
+        return;
+      }
+
+      // Check code
+      if (code !== generatedCode && code !== '123456') {
+        showToast(`Неверный код! Введите: ${generatedCode}`, 'fa-triangle-exclamation');
+        return;
+      }
+
+      // Register user
+      currentUser = {
+        username: pendingRegData?.username || 'SniperPro',
+        email: pendingRegData?.email || 'player@standoff.com',
+        gameId: pendingRegData?.gameId || '1049281',
+        elo: 1000,
+        wins: 0,
+        losses: 0
+      };
+      authToken = 'demo_token_' + Date.now();
+      localStorage.setItem('so2_user', JSON.stringify(currentUser));
+      localStorage.setItem('so2_token', authToken);
+
+      closeModals();
+      checkAuthState();
+      showToast(`Добро пожаловать, ${currentUser.username}! Аккаунт активирован!`, 'fa-circle-check');
+    }
+
+    function resendCode() {
+      showToast('New 6-digit code has been dispatched!', 'fa-paper-plane');
+    }
+
+    // Login
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      currentUser = {
+        username: email.split('@')[0],
+        email: email,
+        gameId: '9841245',
+        elo: 1150,
+        wins: 14,
+        losses: 6
+      };
+      authToken = 'demo_token_' + Date.now();
+      localStorage.setItem('so2_user', JSON.stringify(currentUser));
+      localStorage.setItem('so2_token', authToken);
+
+      closeModals();
+      checkAuthState();
+      showToast(`Welcome back, ${currentUser.username}!`, 'fa-circle-check');
+    }
+
+    function logout() {
+      localStorage.removeItem('so2_user');
+      localStorage.removeItem('so2_token');
+      currentUser = null;
+      authToken = null;
+      checkAuthState();
+      switchView('matchmaking');
+      showToast('Logged out successfully');
+    }
+
+    // Matchmaking Queue
+    let inQueue = false;
+    let queueTimer = null;
+    let secondsInQueue = 0;
+
+    function toggleQueue(mode) {
+      if (!currentUser) {
+        openModal('loginModal');
+        showToast('Please log in or sign up to play ranked matches', 'fa-lock');
+        return;
+      }
+
+      const btn = mode === 'FIVE_VS_FIVE' ? document.getElementById('btnQueue5v5') : document.getElementById('btnQueue2v2');
+      const card = mode === 'FIVE_VS_FIVE' ? document.getElementById('card5v5') : document.getElementById('card2v2');
+
+      if (inQueue) {
+        clearInterval(queueTimer);
+        inQueue = false;
+        btn.innerHTML = `<i class="fa-solid fa-play"></i> QUEUE ${mode === 'FIVE_VS_FIVE' ? '5V5 (SOLO/PARTY)' : '2V2 WINGMAN'}`;
+        card.classList.remove('active-queue');
+        showToast('Left matchmaking queue');
+      } else {
+        inQueue = true;
+        secondsInQueue = 0;
+        card.classList.add('active-queue');
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> SEARCHING... (0:00)`;
+        showToast(`Searching for balanced ${mode === 'FIVE_VS_FIVE' ? '5v5' : '2v2'} match...`, 'fa-crosshairs');
+
+        queueTimer = setInterval(() => {
+          secondsInQueue++;
+          const mins = Math.floor(secondsInQueue / 60);
+          const secs = secondsInQueue % 60;
+          btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> SEARCHING... (${mins}:${secs < 10 ? '0' : ''}${secs})`;
+
+          // Simulate match found after 3 seconds
+          if (secondsInQueue >= 3) {
+            clearInterval(queueTimer);
+            inQueue = false;
+            btn.innerHTML = `<i class="fa-solid fa-play"></i> QUEUE ${mode === 'FIVE_VS_FIVE' ? '5V5 (SOLO/PARTY)' : '2V2 WINGMAN'}`;
+            card.classList.remove('active-queue');
+            triggerMatchFound(mode);
+          }
+        }, 1000);
+      }
+    }
+
+    function triggerMatchFound(mode) {
+      showToast('MATCH FOUND! Entering Map Veto Phase...', 'fa-fire');
+      document.getElementById('modesSection').style.display = 'none';
+      document.getElementById('activeMatchRoom').style.display = 'block';
+
+      // Setup team rosters
+      const myName = currentUser?.username || 'You';
+      document.getElementById('teamAPlayersList').innerHTML = `
+        <div class="player-row"><span>${myName} <span class="captain-tag">CAPTAIN</span></span> <b>1250 ELO</b></div>
+        <div class="player-row"><span>Apex_Ruler</span> <b>1280 ELO</b></div>
+        <div class="player-row"><span>SilentGhost</span> <b>1190 ELO</b></div>
+        <div class="player-row"><span>FlashBang99</span> <b>1220 ELO</b></div>
+        <div class="player-row"><span>CyberDemon</span> <b>1310 ELO</b></div>
+      `;
+
+      document.getElementById('teamBPlayersList').innerHTML = `
+        <div class="player-row"><span>ShadowViper <span class="captain-tag">CAPTAIN</span></span> <b>1240 ELO</b></div>
+        <div class="player-row"><span>KevlarHead</span> <b>1210 ELO</b></div>
+        <div class="player-row"><span>NeonStrike</span> <b>1260 ELO</b></div>
+        <div class="player-row"><span>FrostByte</span> <b>1200 ELO</b></div>
+        <div class="player-row"><span>VortexSO2</span> <b>1290 ELO</b></div>
+      `;
+    }
+
+    // Map Veto Logic
+    let vetoIndex = 0;
+    function banMap(mapName) {
+      const cards = Array.from(document.querySelectorAll('.map-card'));
+      const targetCard = cards.find(c => c.textContent.includes(mapName));
+      if (!targetCard || targetCard.classList.contains('banned')) return;
+
+      targetCard.classList.add('banned');
+      showToast(`Map ${mapName} has been BANNED!`, 'fa-ban');
+
+      const remaining = cards.filter(c => !c.classList.contains('banned'));
+      if (remaining.length === 1) {
+        // Last map decided
+        const picked = remaining[0];
+        picked.classList.add('picked');
+        const finalMap = picked.querySelector('h4').textContent;
+        document.getElementById('finalPickedMap').textContent = finalMap;
+        document.getElementById('matchRoomStatus').textContent = 'MATCH IN PROGRESS';
+        document.getElementById('vetoPhaseSection').style.display = 'none';
+        document.getElementById('roomInGameSection').style.display = 'block';
+        showToast(`Map decided: ${finalMap}! Create lobby in Standoff 2.`, 'fa-trophy');
+      }
+    }
+
+    // Submit Match Result
+    function submitMatchResult() {
+      const scoreA = parseInt(document.getElementById('scoreTeamA').value) || 0;
+      const scoreB = parseInt(document.getElementById('scoreTeamB').value) || 0;
+
+      const delta = scoreA > scoreB ? '+25' : '-20';
+      if (currentUser) {
+        currentUser.elo = (currentUser.elo || 1000) + (scoreA > scoreB ? 25 : -20);
+        if (scoreA > scoreB) currentUser.wins++; else currentUser.losses++;
+        localStorage.setItem('so2_user', JSON.stringify(currentUser));
+        checkAuthState();
+      }
+
+      showToast(`Match result recorded! (${scoreA}:${scoreB}) ELO Rating: ${delta}`, 'fa-trophy');
+      
+      // Reset back to normal view after 2 seconds
+      setTimeout(() => {
+        document.getElementById('activeMatchRoom').style.display = 'none';
+        document.getElementById('modesSection').style.display = 'block';
+        switchView('profile');
+      }, 1500);
+    }
+
+    // Leaderboard Render
+    function renderLeaderboard() {
+      const topPlayers = [
+        { rank: 1, name: 'Zeus_SO2', gameId: '1092841', elo: 2450, winrate: '78%', wl: '142/40' },
+        { rank: 2, name: 'NightmareX', gameId: '9841029', elo: 2380, winrate: '74%', wl: '128/45' },
+        { rank: 3, name: 'S1mple_AWP', gameId: '4720194', elo: 2310, winrate: '71%', wl: '110/44' },
+        { rank: 4, name: 'Vortex_Kill', gameId: '7839201', elo: 2190, winrate: '68%', wl: '95/45' },
+        { rank: 5, name: 'CyberDemon', gameId: '3829104', elo: 2120, winrate: '65%', wl: '88/48' },
+        { rank: 6, name: 'GhostSniper', gameId: '5729102', elo: 2050, winrate: '63%', wl: '82/48' }
+      ];
+
+      const html = topPlayers.map(p => `
+        <tr>
+          <td><span class="rank-number rank-${p.rank}">#${p.rank}</span></td>
+          <td><b>${p.name}</b></td>
+          <td style="color: var(--text-dim);">${p.gameId}</td>
+          <td><span style="color: var(--accent-red); font-weight: 800; font-family: 'Space Grotesk';">${p.elo}</span></td>
+          <td><span style="color: #20c997; font-weight: 700;">${p.winrate}</span></td>
+          <td style="color: var(--text-muted);">${p.wl}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('leaderboardBody').innerHTML = html;
+    }
+
+    // Missions Render
+    function renderMissions() {
+      const missions = [
+        { title: 'Deadeye Sniper', desc: 'Secure 30 Headshots in Ranked 5v5 matches', progress: '18/30', reward: '+150 Points', icon: 'fa-crosshairs' },
+        { title: 'Desert Dominator', desc: 'Win 3 matches on Sandstone', progress: '2/3', reward: '+100 Points', icon: 'fa-trophy' },
+        { title: 'Wingman Ace', desc: 'Win 5 matches in 2v2 Duo Mode', progress: '3/5', reward: '+200 Points', icon: 'fa-user-group' }
+      ];
+
+      document.getElementById('missionsList').innerHTML = missions.map(m => `
+        <div style="background: var(--bg-card); border: 1px solid var(--bg-card-border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <span style="background: rgba(255, 42, 68, 0.1); color: var(--accent-red); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800;">WEEKLY</span>
+              <span style="color: #ffd700; font-weight: 800; font-size: 13px;">${m.reward}</span>
+            </div>
+            <h4 style="font-size: 18px; font-weight: 800; margin-bottom: 6px;">${m.title}</h4>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">${m.desc}</p>
+          </div>
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; margin-bottom: 6px;">
+              <span>Progress</span>
+              <span style="color: var(--accent-red);">${m.progress}</span>
+            </div>
+            <div style="height: 6px; background: var(--bg-dark); border-radius: 4px; overflow: hidden;">
+              <div style="width: 60%; height: 100%; background: var(--accent-red);"></div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Match History Render
+    function renderMatchHistory() {
+      const history = [
+        { mode: '5v5 Ranked', map: 'Sandstone', result: 'VICTORY', score: '10 : 7', delta: '+25', date: 'Today' },
+        { mode: '2v2 Wingman', map: 'Rust', result: 'DEFEAT', score: '6 : 8', delta: '-18', date: 'Yesterday' },
+        { mode: '5v5 Ranked', map: 'Province', result: 'VICTORY', score: '10 : 4', delta: '+26', date: '2 days ago' }
+      ];
+
+      document.getElementById('profileMatchesBody').innerHTML = history.map(h => `
+        <tr>
+          <td><b>${h.mode}</b></td>
+          <td>${h.map}</td>
+          <td><span style="color: ${h.result === 'VICTORY' ? '#20c997' : '#ff2a44'}; font-weight: 800;">${h.result}</span></td>
+          <td style="font-weight: 800;">${h.score}</td>
+          <td><span style="color: ${h.delta.startsWith('+') ? '#20c997' : '#ff2a44'}; font-weight: 800;">${h.delta}</span></td>
+          <td style="color: var(--text-dim);">${h.date}</td>
+        </tr>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
