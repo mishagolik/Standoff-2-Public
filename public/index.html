@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STANDOFF 2 ARENA | Competitive Matchmaking & ELO</title>
+  <title>STANDOFF 2 ARENA | Competitive Matchmaking</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -220,7 +220,7 @@
       color: var(--pure-white);
     }
 
-    .user-elo {
+    .user-badge-tag {
       font-size: 11px;
       color: var(--accent-red);
       font-weight: 800;
@@ -815,7 +815,7 @@
         <div class="avatar" id="badgeAvatar">P</div>
         <div class="user-info-text">
           <span class="user-name" id="badgeUsername">Player</span>
-          <span class="user-elo" id="badgeElo">1000 ELO</span>
+          <span class="user-badge-tag" id="badgeRank">0 Wins</span>
         </div>
       </div>
     </div>
@@ -830,7 +830,7 @@
         <div class="hero-content">
           <div class="hero-tag"><i class="fa-solid fa-bolt"></i> Official Competitive Hub</div>
           <h1 class="hero-title">NEXT GEN <span>STANDOFF 2</span> MATCHMAKING</h1>
-          <p class="hero-desc">Face elite players, climb the regional ELO ladder, ban maps in real-time vetoes, and prove your rank in authentic competitive play.</p>
+          <p class="hero-desc">Face elite players, climb the regional competitive ladder, ban maps in real-time vetoes, and prove your rank in authentic competitive play.</p>
           <div style="display: flex; gap: 14px;">
             <button class="btn btn-primary" style="padding: 14px 28px; font-size: 15px;" onclick="document.getElementById('modesSection').scrollIntoView({behavior:'smooth'})">
               <i class="fa-solid fa-gamepad"></i> FIND MATCH NOW
@@ -869,7 +869,7 @@
           <div class="stat-icon"><i class="fa-solid fa-award"></i></div>
           <div class="stat-info">
             <h4>Level 10</h4>
-            <p>Max ELO Tier</p>
+            <p>Max Tier</p>
           </div>
         </div>
       </div>
@@ -892,7 +892,7 @@
           <div class="team-column team-a">
             <div class="team-title">
               <span style="color: var(--team-t);"><i class="fa-solid fa-skull"></i> TEAM ALPHA</span>
-              <span id="teamAElo">1250 AVG</span>
+              <span id="teamAElo"><i class="fa-solid fa-users"></i> 5 Players</span>
             </div>
             <div id="teamAPlayersList">
               <!-- Dynamically rendered -->
@@ -905,7 +905,7 @@
           <div class="team-column team-b">
             <div class="team-title">
               <span style="color: var(--team-ct);"><i class="fa-solid fa-shield"></i> TEAM BRAVO</span>
-              <span id="teamBElo">1240 AVG</span>
+              <span id="teamBElo"><i class="fa-solid fa-users"></i> 5 Players</span>
             </div>
             <div id="teamBPlayersList">
               <!-- Dynamically rendered -->
@@ -962,7 +962,7 @@
             <h3 style="font-size: 18px; text-transform: uppercase; margin-bottom: 6px;">
               <i class="fa-solid fa-clipboard-check" style="color: var(--accent-red);"></i> Submit Match Score (Captain Verification)
             </h3>
-            <p style="font-size: 13px; color: var(--text-muted);">Enter the final match round score. When both captains agree, ELO is automatically awarded.</p>
+            <p style="font-size: 13px; color: var(--text-muted);">Enter the final match round score. When both captains agree, the match result is automatically verified.</p>
 
             <div class="score-inputs">
               <div style="text-align: center;">
@@ -998,7 +998,7 @@
               <div class="mode-meta">
                 <span><i class="fa-solid fa-users"></i> 10 Players</span>
                 <span><i class="fa-solid fa-clock"></i> ~15-20 Min</span>
-                <span><i class="fa-solid fa-chart-line"></i> +/- 25 ELO</span>
+                <span><i class="fa-solid fa-award"></i> Competitive</span>
               </div>
             </div>
             <button class="btn btn-primary" id="btnQueue5v5" onclick="toggleQueue('FIVE_VS_FIVE')">
@@ -1015,7 +1015,7 @@
               <div class="mode-meta">
                 <span><i class="fa-solid fa-user-group"></i> 4 Players</span>
                 <span><i class="fa-solid fa-clock"></i> ~8-12 Min</span>
-                <span><i class="fa-solid fa-chart-line"></i> +/- 20 ELO</span>
+                <span><i class="fa-solid fa-award"></i> Competitive</span>
               </div>
             </div>
             <button class="btn btn-primary" id="btnQueue2v2" onclick="toggleQueue('TWO_VS_TWO')">
@@ -1036,7 +1036,7 @@
               <th>Rank</th>
               <th>Player</th>
               <th>Standoff 2 ID</th>
-              <th>ELO Rating</th>
+              <th>Total Wins</th>
               <th>Winrate</th>
               <th>W / L</th>
             </tr>
@@ -1068,8 +1068,8 @@
             </div>
           </div>
           <div style="text-align: right;">
-            <div style="font-size: 13px; color: var(--text-dim); text-transform: uppercase; font-weight: 800;">Current Rating</div>
-            <div style="font-size: 38px; font-weight: 900; color: var(--accent-red); font-family: 'Space Grotesk';" id="profElo">1000 ELO</div>
+            <div style="font-size: 13px; color: var(--text-dim); text-transform: uppercase; font-weight: 800;">Match Record</div>
+            <div style="font-size: 38px; font-weight: 900; color: var(--accent-red); font-family: 'Space Grotesk';" id="profRecord">0W - 0L</div>
           </div>
         </div>
 
@@ -1103,7 +1103,7 @@
               <th>Map</th>
               <th>Result</th>
               <th>Score</th>
-              <th>ELO Delta</th>
+              <th>Status</th>
               <th>Date</th>
             </tr>
           </thead>
@@ -1119,13 +1119,13 @@
       <h2 class="section-title"><i class="fa-solid fa-shield-halved"></i> Competitive Match Rules</h2>
       <div style="background: var(--bg-card); border: 1px solid var(--bg-card-border); border-radius: 16px; padding: 32px; line-height: 1.8; color: var(--text-muted);">
         <h4 style="color: #fff; font-size: 18px; margin-bottom: 10px;">1. Captain Score Submissions</h4>
-        <p style="margin-bottom: 20px;">Both Alpha and Bravo captains must submit match scores after game completion. If scores match, ELO is updated instantly. In case of conflicting scores, moderators will review screenshot evidence.</p>
+        <p style="margin-bottom: 20px;">Both Alpha and Bravo captains must submit match scores after game completion. If scores match, the match result is recorded instantly. In case of conflicting scores, moderators will review screenshot evidence.</p>
         
         <h4 style="color: #fff; font-size: 18px; margin-bottom: 10px;">2. Map Veto Regulations</h4>
         <p style="margin-bottom: 20px;">Captains have 45 seconds per turn to ban maps. If a captain is AFK, a random ban will be automatically executed.</p>
 
         <h4 style="color: #fff; font-size: 18px; margin-bottom: 10px;">3. Fair Play & Anti-Cheat</h4>
-        <p>Using third-party injectors, scripts, emulators with unfair macros, or toxic behavior results in an immediate permanent ban and rating reset.</p>
+        <p>Using third-party injectors, scripts, emulators with unfair macros, or toxic behavior results in an immediate permanent ban.</p>
       </div>
     </div>
 
@@ -1225,7 +1225,6 @@
       currentUser = {
         username: username,
         gameId: gameId,
-        elo: 1000,
         wins: 0,
         losses: 0
       };
@@ -1243,7 +1242,6 @@
         currentUser = {
           username: 'Agent_' + Math.floor(1000 + Math.random() * 9000),
           gameId: '109384918',
-          elo: 1000,
           wins: 0,
           losses: 0
         };
@@ -1252,13 +1250,15 @@
       // Top Navbar Badge
       document.getElementById('badgeUsername').textContent = currentUser.username;
       document.getElementById('badgeAvatar').textContent = currentUser.username[0].toUpperCase();
-      document.getElementById('badgeElo').textContent = `${currentUser.elo || 1000} ELO`;
+      const badgeRank = document.getElementById('badgeRank') || document.getElementById('badgeElo');
+      if (badgeRank) badgeRank.textContent = `${currentUser.wins || 0} Wins`;
 
       // Profile tab info
       document.getElementById('profUsername').textContent = currentUser.username;
       document.getElementById('profAvatar').textContent = currentUser.username[0].toUpperCase();
       document.getElementById('profGameId').textContent = currentUser.gameId || 'Not Linked';
-      document.getElementById('profElo').textContent = `${currentUser.elo || 1000} ELO`;
+      const profRec = document.getElementById('profRecord') || document.getElementById('profElo');
+      if (profRec) profRec.textContent = `${currentUser.wins || 0}W - ${currentUser.losses || 0}L`;
 
       // Profile Edit Inputs
       document.getElementById('editUsername').value = currentUser.username;
@@ -1331,19 +1331,19 @@
       // Setup team rosters with current player's name
       const myName = currentUser?.username || 'You';
       document.getElementById('teamAPlayersList').innerHTML = `
-        <div class="player-row"><span>${myName} <span class="captain-tag">CAPTAIN</span></span> <b>${currentUser?.elo || 1000} ELO</b></div>
-        <div class="player-row"><span>Apex_Ruler</span> <b>1280 ELO</b></div>
-        <div class="player-row"><span>SilentGhost</span> <b>1190 ELO</b></div>
-        <div class="player-row"><span>FlashBang99</span> <b>1220 ELO</b></div>
-        <div class="player-row"><span>CyberDemon</span> <b>1310 ELO</b></div>
+        <div class="player-row"><span>${myName} <span class="captain-tag">CAPTAIN</span></span> <b style="color: var(--success);">READY</b></div>
+        <div class="player-row"><span>Apex_Ruler</span> <b style="color: var(--success);">READY</b></div>
+        <div class="player-row"><span>SilentGhost</span> <b style="color: var(--success);">READY</b></div>
+        <div class="player-row"><span>FlashBang99</span> <b style="color: var(--success);">READY</b></div>
+        <div class="player-row"><span>CyberDemon</span> <b style="color: var(--success);">READY</b></div>
       `;
 
       document.getElementById('teamBPlayersList').innerHTML = `
-        <div class="player-row"><span>ShadowViper <span class="captain-tag">CAPTAIN</span></span> <b>1240 ELO</b></div>
-        <div class="player-row"><span>KevlarHead</span> <b>1210 ELO</b></div>
-        <div class="player-row"><span>NeonStrike</span> <b>1260 ELO</b></div>
-        <div class="player-row"><span>FrostByte</span> <b>1200 ELO</b></div>
-        <div class="player-row"><span>VortexSO2</span> <b>1290 ELO</b></div>
+        <div class="player-row"><span>ShadowViper <span class="captain-tag">CAPTAIN</span></span> <b style="color: var(--success);">READY</b></div>
+        <div class="player-row"><span>KevlarHead</span> <b style="color: var(--success);">READY</b></div>
+        <div class="player-row"><span>NeonStrike</span> <b style="color: var(--success);">READY</b></div>
+        <div class="player-row"><span>FrostByte</span> <b style="color: var(--success);">READY</b></div>
+        <div class="player-row"><span>VortexSO2</span> <b style="color: var(--success);">READY</b></div>
       `;
     }
 
@@ -1374,19 +1374,23 @@
       const scoreA = parseInt(document.getElementById('scoreTeamA').value) || 0;
       const scoreB = parseInt(document.getElementById('scoreTeamB').value) || 0;
 
-      const delta = scoreA > scoreB ? '+25' : '-20';
+      const isWin = scoreA > scoreB;
       if (currentUser) {
-        currentUser.elo = (currentUser.elo || 1000) + (scoreA > scoreB ? 25 : -20);
-        if (scoreA > scoreB) currentUser.wins++; else currentUser.losses++;
+        if (isWin) {
+          currentUser.wins = (currentUser.wins || 0) + 1;
+        } else {
+          currentUser.losses = (currentUser.losses || 0) + 1;
+        }
         localStorage.setItem('so2_player_profile', JSON.stringify(currentUser));
         checkAuthState();
       }
 
-      showToast(`Match result recorded! (${scoreA}:${scoreB}) ELO: ${delta}`, 'fa-trophy');
+      showToast(`Match result recorded! (${scoreA}:${scoreB}) - ${isWin ? 'Victory!' : 'Defeat'}`, isWin ? 'fa-trophy' : 'fa-shield-halved');
       
       setTimeout(() => {
         document.getElementById('activeMatchRoom').style.display = 'none';
         document.getElementById('modesSection').style.display = 'block';
+        renderLeaderboard();
         switchView('profile');
       }, 1500);
     }
@@ -1395,25 +1399,28 @@
     function renderLeaderboard() {
       const myName = currentUser?.username || 'You';
       const myId = currentUser?.gameId || '109384918';
-      const myElo = currentUser?.elo || 1000;
+      const myWins = currentUser?.wins || 0;
+      const myLosses = currentUser?.losses || 0;
+      const total = myWins + myLosses;
+      const myWinrate = total > 0 ? Math.round((myWins / total) * 100) + '%' : '100%';
 
       const topPlayers = [
-        { rank: 1, name: 'Zeus_SO2', gameId: '1092841', elo: 2450, winrate: '78%', wl: '142/40' },
-        { rank: 2, name: 'NightmareX', gameId: '9841029', elo: 2380, winrate: '74%', wl: '128/45' },
-        { rank: 3, name: 'S1mple_AWP', gameId: '4720194', elo: 2310, winrate: '71%', wl: '110/44' },
-        { rank: 4, name: myName + ' (You)', gameId: myId, elo: myElo, winrate: '100%', wl: `${currentUser?.wins || 0}/${currentUser?.losses || 0}` },
-        { rank: 5, name: 'Vortex_Kill', gameId: '7839201', elo: 980, winrate: '68%', wl: '95/45' },
-        { rank: 6, name: 'CyberDemon', gameId: '3829104', elo: 920, winrate: '65%', wl: '88/48' }
+        { rank: 1, name: 'Zeus_SO2', gameId: '1092841', wins: 142, winrate: '78%', wl: '142/40' },
+        { rank: 2, name: 'NightmareX', gameId: '9841029', wins: 128, winrate: '74%', wl: '128/45' },
+        { rank: 3, name: 'S1mple_AWP', gameId: '4720194', wins: 110, winrate: '71%', wl: '110/44' },
+        { rank: 4, name: myName + ' (You)', gameId: myId, wins: myWins, winrate: myWinrate, wl: `${myWins}/${myLosses}` },
+        { rank: 5, name: 'Vortex_Kill', gameId: '7839201', wins: 95, winrate: '68%', wl: '95/45' },
+        { rank: 6, name: 'CyberDemon', gameId: '3829104', wins: 88, winrate: '65%', wl: '88/48' }
       ];
 
-      topPlayers.sort((a, b) => b.elo - a.elo);
+      topPlayers.sort((a, b) => b.wins - a.wins);
 
       const html = topPlayers.map((p, index) => `
         <tr style="${p.name.includes('(You)') ? 'background: rgba(255, 42, 68, 0.08); border-left: 3px solid var(--accent-red);' : ''}">
           <td><span class="rank-number rank-${index + 1}">#${index + 1}</span></td>
           <td><b>${p.name}</b></td>
           <td style="color: var(--text-dim);">${p.gameId}</td>
-          <td><span style="color: var(--accent-red); font-weight: 800; font-family: 'Space Grotesk';">${p.elo}</span></td>
+          <td><span style="color: var(--accent-red); font-weight: 800; font-family: 'Space Grotesk';">${p.wins} Wins</span></td>
           <td><span style="color: #20c997; font-weight: 700;">${p.winrate}</span></td>
           <td style="color: var(--text-muted);">${p.wl}</td>
         </tr>
@@ -1456,9 +1463,9 @@
     // Match History Render
     function renderMatchHistory() {
       const history = [
-        { mode: '5v5 Ranked', map: 'Sandstone', result: 'VICTORY', score: '10 : 7', delta: '+25', date: 'Today' },
-        { mode: '2v2 Wingman', map: 'Rust', result: 'DEFEAT', score: '6 : 8', delta: '-18', date: 'Yesterday' },
-        { mode: '5v5 Ranked', map: 'Province', result: 'VICTORY', score: '10 : 4', delta: '+26', date: '2 days ago' }
+        { mode: '5v5 Ranked', map: 'Sandstone', result: 'VICTORY', score: '10 : 7', status: 'Verified', date: 'Today' },
+        { mode: '2v2 Wingman', map: 'Rust', result: 'DEFEAT', score: '6 : 8', status: 'Verified', date: 'Yesterday' },
+        { mode: '5v5 Ranked', map: 'Province', result: 'VICTORY', score: '10 : 4', status: 'Verified', date: '2 days ago' }
       ];
 
       document.getElementById('profileMatchesBody').innerHTML = history.map(h => `
@@ -1467,7 +1474,7 @@
           <td>${h.map}</td>
           <td><span style="color: ${h.result === 'VICTORY' ? '#20c997' : '#ff2a44'}; font-weight: 800;">${h.result}</span></td>
           <td style="font-weight: 800;">${h.score}</td>
-          <td><span style="color: ${h.delta.startsWith('+') ? '#20c997' : '#ff2a44'}; font-weight: 800;">${h.delta}</span></td>
+          <td><span style="color: #20c997; font-weight: 800;"><i class="fa-solid fa-circle-check"></i> ${h.status}</span></td>
           <td style="color: var(--text-dim);">${h.date}</td>
         </tr>
       `).join('');
