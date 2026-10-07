@@ -8,12 +8,13 @@ import { authRoutes } from './modules/auth/auth.routes'
 import { userRoutes } from './modules/users/users.routes'
 import { matchRoutes } from './modules/matches/matches.routes'
 import { matchmakingRoutes } from './modules/matchmaking/matchmaking.routes'
+import { forumRoutes } from './modules/forum/forum.routes'
 import { startMatchmakingLoop } from './modules/matchmaking/matchmaking.service'
 import { tournamentRoutes } from './modules/tournaments/tournaments.routes'
 import { missionRoutes } from './modules/missions/missions.routes'
 import { setupSocket } from './socket/socket'
 
-const app = Fastify({ logger: true })
+const app = Fastify({ logger: true, trustProxy: 1, bodyLimit: 32 * 1024 })
 const allowedOrigins = process.env.FRONTEND_URL?.split(',').map(origin => origin.trim()) || true
 
 export const io = new SocketServer(app.server, {
@@ -44,6 +45,7 @@ async function bootstrap() {
   await app.register(userRoutes, { prefix: '/api/users' })
   await app.register(matchRoutes, { prefix: '/api/matches' })
   await app.register(matchmakingRoutes, { prefix: '/api/matchmaking' })
+  await app.register(forumRoutes, { prefix: '/api/forum' })
   await app.register(tournamentRoutes, { prefix: '/api/tournaments' })
   await app.register(missionRoutes, { prefix: '/api/missions' })
 

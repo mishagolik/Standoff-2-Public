@@ -24,6 +24,7 @@ model User {
   missionsProgress MissionProgress[]
   tournamentPlayers TournamentPlayer[]
   eloHistory       EloHistory[]
+  forumPost        ForumPost?
 
   @@map("users")
 }
@@ -44,6 +45,20 @@ model Match {
   vetoBans   VetoBan[]
 
   @@map("matches")
+}
+
+model ForumPost {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  title     String   @db.VarChar(100)
+  message   String   @db.VarChar(1200)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([updatedAt])
+  @@map("forum_posts")
 }
 
 model MatchPlayer {

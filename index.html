@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STANDOFF 2 ARENA | Competitive Matchmaking</title>
+  <title>HVH ARENA | Competitive Matchmaking</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
@@ -797,6 +797,310 @@
       .map-veto-grid { grid-template-columns: 1fr 1fr; }
       .nav-links { display: none; }
     }
+
+    :root {
+      --bg-dark: #090a0a;
+      --bg-card: #111313;
+      --bg-card-hover: #191c1a;
+      --bg-card-border: rgba(255, 255, 255, 0.14);
+      --accent-red: #ff3b30;
+      --accent-red-hover: #ff594f;
+      --accent-red-glow: rgba(255, 59, 48, 0.14);
+      --pure-white: #f6f7f2;
+      --text-main: #eef0e8;
+      --text-muted: #a0a49a;
+      --text-dim: #70756d;
+      --team-ct: #a6ff00;
+      --team-t: #ff3b30;
+      --success: #a6ff00;
+      --warning: #d7ff00;
+      --danger: #ff3b30;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 100% 48px;
+      font-family: 'IBM Plex Sans', sans-serif;
+    }
+
+    header {
+      padding: 14px clamp(18px, 4vw, 56px);
+      background: rgba(9, 10, 10, 0.96);
+      backdrop-filter: none;
+      border-bottom: 1px solid var(--bg-card-border);
+    }
+
+    .brand { gap: 10px; }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 2px;
+      background: var(--accent-red);
+      box-shadow: none;
+      transform: none;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 23px;
+      font-style: italic;
+    }
+
+    .brand-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 26px;
+      letter-spacing: 0;
+    }
+
+    .brand-title span { color: var(--team-ct); }
+
+    .nav-links { gap: 24px; }
+
+    .nav-item {
+      font-size: 13px;
+      letter-spacing: 0;
+    }
+
+    .nav-item:hover, .nav-item.active { text-shadow: none; }
+    .nav-item.active { border-bottom-width: 3px; }
+
+    .btn {
+      border-radius: 2px;
+      letter-spacing: 0;
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .btn-primary {
+      color: #090a0a;
+      background: var(--team-ct);
+      box-shadow: none;
+      font-weight: 800;
+    }
+
+    .btn-primary:hover {
+      color: #090a0a;
+      background: #c2ff54;
+      box-shadow: none;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline { border-radius: 2px; }
+
+    .user-profile-badge {
+      border-radius: 2px;
+      background: transparent;
+    }
+
+    .user-profile-badge:hover { box-shadow: none; }
+
+    .avatar {
+      border-radius: 2px;
+      background: var(--accent-red);
+    }
+
+    .container {
+      max-width: 1160px;
+      padding-top: 28px;
+    }
+
+    .hero {
+      min-height: 285px;
+      padding: 34px 40px;
+      margin-bottom: 28px;
+      border: 0;
+      border-left: 5px solid var(--accent-red);
+      border-radius: 0;
+      background: #111313;
+    }
+
+    .hero::after { display: none; }
+    .hero-content { max-width: 720px; }
+
+    .hero-tag {
+      margin-bottom: 10px;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: none;
+      color: var(--team-ct);
+      font-size: 12px;
+      letter-spacing: 0;
+    }
+
+    .hero-title {
+      max-width: 680px;
+      margin-bottom: 10px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 62px;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .hero-title span {
+      color: var(--team-ct);
+      text-shadow: none;
+    }
+
+    .hero-desc {
+      max-width: 560px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .stats-counter-bar { gap: 0; margin-bottom: 32px; border-block: 1px solid var(--bg-card-border); }
+
+    .stat-card {
+      min-width: 0;
+      padding: 14px 18px;
+      border: 0;
+      border-right: 1px solid var(--bg-card-border);
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .stat-card:last-child { border-right: 0; }
+    .stat-card:hover { transform: none; border-color: var(--bg-card-border); }
+    .stat-icon { width: 34px; height: 34px; border-radius: 2px; background: transparent; color: var(--team-ct); }
+    .stat-info h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; }
+    .stat-info p { font-size: 10px; letter-spacing: 0; }
+
+    .section-title {
+      margin-bottom: 16px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+
+    .mode-cards { gap: 12px; }
+
+    .mode-card {
+      min-height: 230px;
+      padding: 24px;
+      border-radius: 2px;
+      box-shadow: none;
+    }
+
+    .mode-card:hover { transform: none; box-shadow: none; }
+    .mode-card.active-queue { background: #151a10; }
+
+    .mode-badge {
+      top: 18px;
+      right: 18px;
+      border-radius: 2px;
+      color: var(--team-ct);
+      letter-spacing: 0;
+    }
+
+    .mode-card h3 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 30px;
+    }
+
+    .mode-card p { max-width: 440px; font-size: 13px; }
+    .mode-meta { flex-wrap: wrap; gap: 12px; font-size: 12px; }
+
+    .lobby-modal-card {
+      padding: 24px;
+      border-radius: 2px;
+      box-shadow: none;
+    }
+
+    .lobby-header { border-color: var(--bg-card-border); }
+    .team-column { border-radius: 2px; background: #0d0f0e; }
+    .player-row { border-radius: 2px; }
+    .captain-tag { border-radius: 1px; background: var(--team-ct); }
+    .vs-circle { width: 40px; height: 40px; border-radius: 2px; box-shadow: none; }
+    .map-card { border-radius: 2px; }
+    .submit-box, .table-container { border-radius: 2px; }
+    .modal-window { border-radius: 2px; box-shadow: none; }
+    .form-control { border-radius: 2px; }
+
+    .team-a { --team-t: var(--accent-red); }
+    .team-b { --team-ct: #a6ff00; }
+    .team-column.team-a { border-top-color: var(--accent-red); }
+    .team-column.team-b { border-top-color: #a6ff00; }
+    .vs-circle { background: #a6ff00; color: #090a0a; }
+    .map-card.picked {
+      border-color: #a6ff00;
+      box-shadow: none;
+      background: rgba(166, 255, 0, 0.08);
+    }
+    .map-card:hover:not(.banned):not(.picked) { transform: none; border-color: #a6ff00; }
+    .captain-tag { color: #090a0a; }
+    .submit-box { background: #111313; border-color: var(--bg-card-border); }
+    .lobby-modal-card { border-left: 3px solid var(--accent-red); }
+
+    #roomInGameSection > div:first-child {
+      background: #111313 !important;
+      border-color: var(--bg-card-border) !important;
+      border-radius: 2px !important;
+    }
+
+    #roomInGameSection h3,
+    #finalPickedMap,
+    #lobbyHostGameId { color: #a6ff00 !important; }
+
+    #roomInGameSection > div:first-child > div:nth-of-type(1) { border-radius: 2px !important; }
+
+    .team-title span:first-child { color: var(--accent-red) !important; }
+    .team-b .team-title span:first-child { color: #a6ff00 !important; }
+    #vetoTurnLabel { color: #a6ff00 !important; }
+
+    .forum-compose, .forum-post {
+      padding: 20px;
+      margin-bottom: 14px;
+      border: 1px solid var(--bg-card-border);
+      border-left: 3px solid var(--accent-red);
+      background: var(--bg-card);
+    }
+
+    .forum-compose h3, .forum-post h3 {
+      margin-bottom: 8px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 24px;
+      text-transform: uppercase;
+    }
+
+    .forum-compose textarea { min-height: 132px; resize: vertical; }
+    .forum-post-head { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+    .forum-author { color: var(--team-ct); font-weight: 700; }
+    .forum-game-id, .forum-date { color: var(--text-dim); font-size: 12px; }
+    .forum-post-message { color: var(--text-main); line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .forum-post-actions { display: flex; gap: 8px; margin-top: 16px; }
+    .forum-honeypot { position: absolute !important; left: -10000px !important; width: 1px !important; height: 1px !important; }
+    .forum-empty { padding: 28px 0; color: var(--text-muted); }
+
+    @media (max-width: 540px) {
+      .forum-compose, .forum-post { padding: 14px; }
+      .forum-post-head { flex-direction: column; gap: 5px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+    }
+
+    @media (max-width: 900px) {
+      .container { padding: 18px 16px 56px; }
+      .hero { min-height: 0; padding: 28px 24px; text-align: left; }
+      .hero-title { font-size: 48px; }
+      .stats-counter-bar { grid-template-columns: 1fr 1fr; }
+      .stat-card:nth-child(2) { border-right: 0; }
+      .stat-card:nth-child(-n+2) { border-bottom: 1px solid var(--bg-card-border); }
+    }
+
+    @media (max-width: 540px) {
+      .brand-title { font-size: 23px; }
+      .user-profile-badge { gap: 7px; padding-right: 8px; }
+      .user-info-text { max-width: 100px; overflow: hidden; }
+      .user-name { overflow: hidden; text-overflow: ellipsis; }
+      .hero-title { font-size: 42px; }
+      .hero-content > div:last-child { flex-wrap: wrap; }
+      .stats-counter-bar { grid-template-columns: 1fr 1fr; }
+      .stat-card { padding: 12px 8px; gap: 6px; }
+      .stat-icon { width: 26px; }
+      .map-veto-grid { grid-template-columns: 1fr 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -804,12 +1108,13 @@
   <!-- NAVIGATION HEADER -->
   <header>
     <a class="brand" onclick="switchView('matchmaking')">
-      <div class="brand-logo">S2</div>
-      <div class="brand-title">STANDOFF 2 <span>ARENA</span></div>
+      <div class="brand-logo">H</div>
+      <div class="brand-title">HVH <span>ARENA</span></div>
     </a>
 
     <ul class="nav-links">
       <li class="nav-item active" onclick="switchView('matchmaking')"><i class="fa-solid fa-crosshairs"></i> Play</li>
+      <li class="nav-item" onclick="switchView('forum')"><i class="fa-solid fa-comments"></i> Forum</li>
       <li class="nav-item" onclick="switchView('leaderboard')"><i class="fa-solid fa-trophy"></i> Leaderboard</li>
       <li class="nav-item" onclick="switchView('missions')"><i class="fa-solid fa-bullseye"></i> Missions</li>
       <li class="nav-item" onclick="switchView('rules')"><i class="fa-solid fa-shield-halved"></i> Rules</li>
@@ -833,9 +1138,9 @@
     <div id="view-matchmaking" class="view-tab active">
       <section class="hero">
         <div class="hero-content">
-          <div class="hero-tag"><i class="fa-solid fa-bolt"></i> Official Competitive Hub</div>
-          <h1 class="hero-title">NEXT GEN <span>STANDOFF 2</span> MATCHMAKING</h1>
-          <p class="hero-desc">Face elite players, climb the regional competitive ladder, ban maps in real-time vetoes, and prove your rank in authentic competitive play.</p>
+          <div class="hero-tag"><i class="fa-solid fa-bolt"></i> Competitive Matchmaking</div>
+          <h1 class="hero-title">HVH <span>ARENA</span></h1>
+          <p class="hero-desc">Queue up. Get matched. Fight for the map.</p>
           <div style="display: flex; gap: 14px;">
             <button class="btn btn-primary" style="padding: 14px 28px; font-size: 15px;" onclick="document.getElementById('modesSection').scrollIntoView({behavior:'smooth'})">
               <i class="fa-solid fa-gamepad"></i> FIND MATCH NOW
@@ -846,38 +1151,6 @@
           </div>
         </div>
       </section>
-
-      <!-- LIVE STATS BANNER -->
-      <div class="stats-counter-bar">
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
-          <div class="stat-info">
-            <h4 id="statTotalPlayers">2,480</h4>
-            <p>Active Players</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fa-solid fa-shield-halved"></i></div>
-          <div class="stat-info">
-            <h4 id="statMatchesPlayed">14,920</h4>
-            <p>Matches Completed</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fa-solid fa-fire"></i></div>
-          <div class="stat-info">
-            <h4>128 Tick</h4>
-            <p>Competitive Rules</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fa-solid fa-award"></i></div>
-          <div class="stat-info">
-            <h4>Level 10</h4>
-            <p>Max Tier</p>
-          </div>
-        </div>
-      </div>
 
       <!-- ACTIVE MATCH / ROOM STATE (Dynamically shown when in game) -->
       <div id="activeMatchRoom" style="display: none;" class="lobby-modal-card">
@@ -1037,6 +1310,37 @@
       </div>
     </div>
 
+    <!-- TAB: PLAYER FORUM -->
+    <div id="view-forum" class="view-tab">
+      <div style="display:flex; justify-content:space-between; align-items:end; gap:16px; flex-wrap:wrap; margin-bottom:20px;">
+        <div>
+          <div class="hero-tag"><i class="fa-solid fa-comments"></i> Player board</div>
+          <h2 class="section-title" style="margin-bottom:0;">Player ads</h2>
+        </div>
+        <button class="btn btn-outline" type="button" onclick="loadForum()"><i class="fa-solid fa-rotate"></i> REFRESH</button>
+      </div>
+
+      <form id="forumForm" class="forum-compose" onsubmit="submitForumPost(event)">
+        <h3 id="forumFormTitle">Post your ad</h3>
+        <p id="forumFormHint" style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">One active ad per player. Your nickname and game ID will be public.</p>
+        <div class="form-group">
+          <label for="forumTitle">Title</label>
+          <input id="forumTitle" class="form-control" maxlength="100" minlength="4" required placeholder="Looking for a team">
+        </div>
+        <div class="form-group">
+          <label for="forumMessage">Message</label>
+          <textarea id="forumMessage" class="form-control" maxlength="1200" minlength="10" required placeholder="Tell players what you are looking for..."></textarea>
+        </div>
+        <label class="forum-honeypot" aria-hidden="true">Leave this blank<input id="forumWebsite" name="website" tabindex="-1" autocomplete="off"></label>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button id="forumSubmit" class="btn btn-primary" type="submit"><i class="fa-solid fa-paper-plane"></i> POST AD</button>
+          <button id="forumCancelEdit" class="btn btn-outline" type="button" onclick="resetForumForm()" style="display:none;">CANCEL EDIT</button>
+        </div>
+      </form>
+      <div id="forumNotice" role="status" style="margin-bottom:16px; color:var(--text-muted);"></div>
+      <div id="forumPosts" aria-live="polite"><p class="forum-empty">Loading player ads...</p></div>
+    </div>
+
     <!-- TAB 2: LEADERBOARD -->
     <div id="view-leaderboard" class="view-tab">
       <h2 class="section-title"><i class="fa-solid fa-trophy"></i> Global Ranked Leaderboard</h2>
@@ -1160,6 +1464,7 @@
           <label>Standoff 2 Game ID</label>
           <input type="text" id="setupGameId" class="form-control" placeholder="e.g. 109384918" maxlength="64" required>
         </div>
+        <label class="forum-honeypot" aria-hidden="true">Leave this blank<input id="setupWebsite" name="website" tabindex="-1" autocomplete="off"></label>
         <button type="submit" class="btn btn-primary" id="authSubmit" style="width: 100%; margin-top: 10px; padding: 12px;">
           CREATE PLAYER PROFILE
         </button>
@@ -1187,6 +1492,7 @@
     let secondsInQueue = 0;
     let activeMatch = null;
     let activeMatchTimer = null;
+    let myForumPost = null;
 
     window.addEventListener('DOMContentLoaded', async () => {
       renderLeaderboard();
@@ -1293,6 +1599,7 @@
 
       const navEl = Array.from(document.querySelectorAll('.nav-item')).find(el => el.textContent.toLowerCase().includes(tabId));
       if (navEl) navEl.classList.add('active');
+      if (tabId === 'forum') loadForum();
     }
 
     // Modal Handling
@@ -1325,7 +1632,7 @@
       try {
         const result = await apiRequest('/api/auth/guest', {
           method: 'POST',
-          body: { username, gameId }
+          body: { username, gameId, website: document.getElementById('setupWebsite').value }
         });
         currentUser = { ...result.user, token: result.token };
 
@@ -1494,6 +1801,138 @@
       return String(value ?? '').replace(/[&<>"']/g, character => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
       })[character]);
+    }
+
+    async function loadForum() {
+      const form = document.getElementById('forumForm');
+      const notice = document.getElementById('forumNotice');
+      if (!currentUser?.token) {
+        form.style.display = 'none';
+        notice.textContent = 'Create a player profile to browse and post ads.';
+        document.getElementById('forumPosts').innerHTML = '';
+        return;
+      }
+
+      form.style.display = '';
+      notice.textContent = 'Loading player ads...';
+      try {
+        const posts = await apiRequest('/api/forum');
+        myForumPost = posts.find(post => post.isMine) || null;
+        renderForumPosts(posts);
+        notice.textContent = posts.length ? `${posts.length} player ad${posts.length === 1 ? '' : 's'}` : 'No ads yet. Be the first to post.';
+        if (myForumPost) {
+          form.style.display = 'none';
+          document.getElementById('forumFormTitle').textContent = 'Edit your ad';
+          document.getElementById('forumFormHint').textContent = 'You already have one ad. Edit it here or remove it from your post below.';
+          document.getElementById('forumSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> UPDATE AD';
+        } else {
+          form.style.display = '';
+          resetForumForm();
+        }
+      } catch (error) {
+        notice.textContent = error.message;
+        document.getElementById('forumPosts').innerHTML = '';
+      }
+    }
+
+    function renderForumPosts(posts) {
+      const container = document.getElementById('forumPosts');
+      if (!posts.length) {
+        container.innerHTML = '<p class="forum-empty">No player ads yet.</p>';
+        return;
+      }
+
+      container.innerHTML = posts.map(post => `
+        <article class="forum-post">
+          <div class="forum-post-head">
+            <div>
+              <span class="forum-author">${escapeHtml(post.user.username)}</span>
+              <span class="forum-game-id">Game ID: ${escapeHtml(post.user.gameId || 'Not provided')}</span>
+              ${post.isMine ? '<span class="mode-badge" style="position:static; display:inline-block; margin-left:8px;">YOUR AD</span>' : ''}
+            </div>
+            <time class="forum-date">${escapeHtml(new Date(post.updatedAt).toLocaleString())}</time>
+          </div>
+          <h3>${escapeHtml(post.title)}</h3>
+          <p class="forum-post-message">${escapeHtml(post.message)}</p>
+          ${post.isMine ? '<div class="forum-post-actions"><button class="btn btn-outline" type="button" onclick="editForumPost()"><i class="fa-solid fa-pen"></i> EDIT</button><button class="btn btn-outline" type="button" onclick="deleteForumPost()"><i class="fa-solid fa-trash"></i> DELETE</button></div>' : ''}
+        </article>
+      `).join('');
+    }
+
+    async function submitForumPost(event) {
+      event.preventDefault();
+      if (!currentUser?.token) {
+        openModal('welcomeModal');
+        showToast('Create a player profile before posting.', 'fa-user-lock');
+        return;
+      }
+
+      const submit = document.getElementById('forumSubmit');
+      submit.disabled = true;
+      const body = {
+        title: document.getElementById('forumTitle').value.trim(),
+        message: document.getElementById('forumMessage').value.trim(),
+        website: document.getElementById('forumWebsite').value
+      };
+
+      try {
+        await apiRequest(myForumPost ? '/api/forum/mine' : '/api/forum', {
+          method: myForumPost ? 'PUT' : 'POST',
+          body
+        });
+        document.getElementById('forumWebsite').value = '';
+        resetForumForm();
+        showToast(myForumPost ? 'Ad updated.' : 'Ad posted.', 'fa-circle-check');
+        await loadForum();
+      } catch (error) {
+        showToast(error.message, 'fa-triangle-exclamation');
+      } finally {
+        submit.disabled = false;
+      }
+    }
+
+    function editForumPost() {
+      if (!myForumPost) return;
+      document.getElementById('forumForm').style.display = '';
+      document.getElementById('forumTitle').value = myForumPost.title;
+      document.getElementById('forumMessage').value = myForumPost.message;
+      document.getElementById('forumFormTitle').textContent = 'Edit your ad';
+      document.getElementById('forumSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> UPDATE AD';
+      document.getElementById('forumCancelEdit').style.display = 'inline-flex';
+      document.getElementById('forumForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function resetForumForm() {
+      const form = document.getElementById('forumForm');
+      if (myForumPost) {
+        document.getElementById('forumTitle').value = myForumPost.title;
+        document.getElementById('forumMessage').value = myForumPost.message;
+        form.style.display = 'none';
+      } else {
+        form.reset();
+        form.style.display = '';
+      }
+      document.getElementById('forumCancelEdit').style.display = 'none';
+      document.getElementById('forumFormTitle').textContent = myForumPost ? 'Edit your ad' : 'Post your ad';
+      document.getElementById('forumFormHint').textContent = myForumPost
+        ? 'You already have one ad. Edit it here or remove it from your post below.'
+        : 'One active ad per player. Your nickname and game ID will be public.';
+      document.getElementById('forumSubmit').innerHTML = myForumPost
+        ? '<i class="fa-solid fa-floppy-disk"></i> UPDATE AD'
+        : '<i class="fa-solid fa-paper-plane"></i> POST AD';
+    }
+
+    async function deleteForumPost() {
+      if (!myForumPost || !confirm('Delete your player ad?')) return;
+      try {
+        await apiRequest('/api/forum/mine', { method: 'DELETE' });
+        myForumPost = null;
+        resetForumForm();
+        showToast('Ad deleted.', 'fa-trash');
+        await loadForum();
+      } catch (error) {
+        showToast(error.message, 'fa-triangle-exclamation');
+      }
     }
 
     function renderMatch(match) {
