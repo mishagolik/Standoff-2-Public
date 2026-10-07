@@ -10,10 +10,6 @@ services:
         value: production
       - key: PORT
         value: 10000
-      - key: RESEND_API_KEY
-        value: re_eYsdczXj_KhgQEHwWVdaTUnDDumDJwvtG
-      - key: EMAIL_FROM
-        value: onboarding@resend.dev
       - key: JWT_SECRET
         generateValue: true
       - key: DATABASE_URL

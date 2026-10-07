@@ -39,8 +39,7 @@ docker-compose up --build
 ### Auth
 | Method | URL | Описание |
 |--------|-----|----------|
-| POST | `/api/auth/register` | Регистрация |
-| POST | `/api/auth/login` | Логин |
+| POST | `/api/auth/guest` | Создать профиль по нику и игровому ID |
 | GET | `/api/auth/me` | Текущий пользователь |
 
 ### Users
@@ -64,6 +63,16 @@ docker-compose up --build
 | GET | `/api/matches/:id` | Детали матча |
 | POST | `/api/matches/:id/veto` | Забанить карту (капитан) |
 | POST | `/api/matches/:id/result` | Записать результат |
+
+### Forum
+| Method | URL | Описание |
+|--------|-----|----------|
+| GET | `/api/forum` | Список объявлений |
+| POST | `/api/forum` | Создать одно объявление игрока |
+| PUT | `/api/forum/mine` | Изменить своё объявление |
+| DELETE | `/api/forum/mine` | Удалить своё объявление |
+| GET | `/api/forum/:postId/messages` | Сообщения чата объявления |
+| POST | `/api/forum/:postId/messages` | Отправить сообщение в чат объявления |
 
 ### Tournaments
 | Method | URL | Описание |

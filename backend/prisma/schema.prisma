@@ -10,8 +10,6 @@ datasource db {
 model User {
   id           String   @id @default(cuid())
   username     String   @unique
-  email        String   @unique
-  passwordHash String
   gameId       String?  @unique  // Standoff 2 ID
   elo          Int      @default(1000)
   wins         Int      @default(0)
@@ -25,6 +23,7 @@ model User {
   tournamentPlayers TournamentPlayer[]
   eloHistory       EloHistory[]
   forumPost        ForumPost?
+  forumMessages    ForumMessage[]
 
   @@map("users")
 }
@@ -56,9 +55,25 @@ model ForumPost {
   updatedAt DateTime @updatedAt
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  ForumMessage[]
 
   @@index([updatedAt])
   @@map("forum_posts")
+}
+
+model ForumMessage {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  message   String   @db.VarChar(1000)
+  createdAt DateTime @default(now())
+
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
+  @@index([userId, createdAt])
+  @@map("forum_messages")
 }
 
 model MatchPlayer {

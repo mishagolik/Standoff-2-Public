@@ -61,7 +61,7 @@ export const userRoutes: FastifyPluginAsync = async (app) => {
     const user = await prisma.user.update({
       where: { id },
       data: body.data,
-      select: { id: true, username: true, email: true, gameId: true, elo: true }
+      select: { id: true, username: true, gameId: true, elo: true }
     })
     return user
   })
