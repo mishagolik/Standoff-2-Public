@@ -1,7 +1,6 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import jwt from '@fastify/jwt'
-import { createServer } from 'http'
 import { Server as SocketServer } from 'socket.io'
 import { prisma } from './db/prisma'
 import { redis } from './db/redis'
@@ -9,20 +8,21 @@ import { authRoutes } from './modules/auth/auth.routes'
 import { userRoutes } from './modules/users/users.routes'
 import { matchRoutes } from './modules/matches/matches.routes'
 import { matchmakingRoutes } from './modules/matchmaking/matchmaking.routes'
+import { startMatchmakingLoop } from './modules/matchmaking/matchmaking.service'
 import { tournamentRoutes } from './modules/tournaments/tournaments.routes'
 import { missionRoutes } from './modules/missions/missions.routes'
 import { setupSocket } from './socket/socket'
 
 const app = Fastify({ logger: true })
-const httpServer = createServer(app.server)
+const allowedOrigins = process.env.FRONTEND_URL?.split(',').map(origin => origin.trim()) || true
 
-export const io = new SocketServer(httpServer, {
-  cors: { origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }
+export const io = new SocketServer(app.server, {
+  cors: { origin: allowedOrigins, credentials: true }
 })
 
 async function bootstrap() {
   await app.register(cors, {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: allowedOrigins,
     credentials: true
   })
 
@@ -54,6 +54,7 @@ async function bootstrap() {
 
   const PORT = Number(process.env.PORT) || 4000
   await app.listen({ port: PORT, host: '0.0.0.0' })
+  startMatchmakingLoop()
   console.log(`🚀 Server running on http://localhost:${PORT}`)
 }
 

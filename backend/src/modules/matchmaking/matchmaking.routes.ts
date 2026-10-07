@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
-import { joinQueue, leaveQueue, getQueuePosition } from './matchmaking.service'
+import { joinQueue, leaveQueue, getQueuePosition, getCurrentMatch } from './matchmaking.service'
 
 const schema = z.object({ mode: z.enum(['FIVE_VS_FIVE', 'TWO_VS_TWO']) })
 
@@ -36,5 +36,11 @@ export const matchmakingRoutes: FastifyPluginAsync = async (app) => {
     const { id } = (req as any).user
     const position = await getQueuePosition(id, mode)
     return { position, inQueue: position > 0 }
+  })
+
+  app.get('/current', auth, async (req) => {
+    const { id } = (req as any).user
+    const match = await getCurrentMatch(id)
+    return { match }
   })
 }

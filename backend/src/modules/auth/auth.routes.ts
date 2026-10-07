@@ -1,5 +1,6 @@
 import { FastifyPluginAsync } from 'fastify'
 import bcrypt from 'bcryptjs'
+import { randomBytes, randomUUID } from 'crypto'
 import { z } from 'zod'
 import { prisma } from '../../db/prisma'
 import { sendVerificationEmail, sendPasswordResetEmail } from './email.service'
@@ -23,6 +24,11 @@ const verifyCodeSchema = z.object({
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string()
+})
+
+const guestSchema = z.object({
+  username: z.string().min(3).max(20),
+  gameId: z.string().trim().min(1).max(64)
 })
 
 export const authRoutes: FastifyPluginAsync = async (app) => {
@@ -80,6 +86,33 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     })
 
     const token = app.jwt.sign({ id: user.id, username: user.username }, { expiresIn: '7d' })
+    return reply.status(201).send({ user, token })
+  })
+
+  // POST /api/auth/guest - create a browser-held guest profile without credentials
+  app.post('/guest', async (req, reply) => {
+    const body = guestSchema.safeParse(req.body)
+    if (!body.success) return reply.status(400).send({ error: body.error.flatten() })
+
+    const { username, gameId } = body.data
+    const exists = await prisma.user.findFirst({
+      where: { OR: [{ username }, { gameId }] },
+      select: { id: true }
+    })
+    if (exists) return reply.status(409).send({ error: 'Nickname or Standoff 2 ID already registered' })
+
+    const passwordHash = await bcrypt.hash(randomBytes(32).toString('hex'), 12)
+    const user = await prisma.user.create({
+      data: {
+        username,
+        gameId,
+        email: `guest-${randomUUID()}@accounts.invalid`,
+        passwordHash
+      },
+      select: { id: true, username: true, gameId: true, elo: true, wins: true, losses: true }
+    })
+
+    const token = app.jwt.sign({ id: user.id, username: user.username }, { expiresIn: '365d' })
     return reply.status(201).send({ user, token })
   })
 

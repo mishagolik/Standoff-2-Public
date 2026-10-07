@@ -27,7 +27,7 @@ export const matchRoutes: FastifyPluginAsync = async (app) => {
     const match = await prisma.match.findUnique({
       where: { id },
       include: {
-        players: { include: { user: { select: { id: true, username: true, elo: true } } } },
+        players: { include: { user: { select: { id: true, username: true, elo: true, gameId: true } } } },
         vetoBans: { orderBy: { order: 'asc' } }
       }
     })

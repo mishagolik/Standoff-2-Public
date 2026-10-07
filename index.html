@@ -572,6 +572,11 @@
       border-color: #555;
     }
 
+    .map-card.disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
     .map-card.banned::after {
       content: 'BANNED';
       position: absolute;
@@ -950,10 +955,16 @@
             <h3 style="color: #20c997; font-size: 20px; text-transform: uppercase; margin-bottom: 8px;">
               <i class="fa-solid fa-gamepad"></i> Custom Game Lobby Details
             </h3>
-            <p style="color: #d1f2e8; font-size: 14px; margin-bottom: 12px;">Open Standoff 2 on your device, create/join Private Match, and invite players via Game ID.</p>
-            <div style="display: inline-flex; gap: 20px; background: var(--bg-dark); padding: 10px 24px; border-radius: 8px; font-weight: 800;">
+            <p style="color: #d1f2e8; font-size: 14px; margin-bottom: 12px;">The assigned host creates a Private Match in Standoff 2 and invites the other players by ID.</p>
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 14px; background: var(--bg-dark); padding: 14px 20px; border-radius: 8px; font-weight: 800;">
               <div>Selected Map: <span style="color: #20c997;" id="finalPickedMap">Sandstone</span></div>
               <div>Server: <span style="color: #fff;">Russia / EU Central</span></div>
+            </div>
+            <div style="margin-top: 16px; color: #fff; font-size: 15px;">
+              Lobby host: <strong id="lobbyHostName">Waiting for match</strong>
+              <span style="color: var(--text-muted);"> / Standoff 2 ID </span>
+              <strong id="lobbyHostGameId" style="color: #20c997;">-</strong>
+              <button type="button" class="btn btn-outline" style="margin-left: 10px; padding: 8px 12px;" onclick="copyHostGameId()" title="Copy host game ID"><i class="fa-solid fa-copy"></i> COPY ID</button>
             </div>
           </div>
 
@@ -1131,28 +1142,30 @@
 
   </main>
 
-  <!-- MODAL: FIRST VISIT WELCOME / SET NICKNAME & ID -->
+  <!-- MODAL: FIRST VISIT PLAYER PROFILE -->
   <div id="welcomeModal" class="modal-overlay">
     <div class="modal-window">
       <div style="width: 60px; height: 60px; background: rgba(255, 42, 68, 0.1); color: var(--accent-red); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px;">
         <i class="fa-solid fa-crosshairs"></i>
       </div>
       <h2 style="font-size: 22px; font-weight: 900; text-transform: uppercase; margin-bottom: 6px; text-align: center;">Welcome to Arena!</h2>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px; text-align: center;">Enter your player nickname and Standoff 2 ID to start competing instantly.</p>
+      <p id="authDescription" style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px; text-align: center;">Enter your nickname and Standoff 2 ID to join live matchmaking.</p>
 
       <form onsubmit="handleInitialSetup(event)">
-        <div class="form-group">
+        <div class="form-group" id="setupUsernameGroup">
           <label>Player Nickname</label>
-          <input type="text" id="setupUsername" class="form-control" placeholder="e.g. S2_Sniper" required>
+          <input type="text" id="setupUsername" class="form-control" placeholder="e.g. S2_Sniper" minlength="3" maxlength="20" required>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="setupGameIdGroup">
           <label>Standoff 2 Game ID</label>
-          <input type="text" id="setupGameId" class="form-control" placeholder="e.g. 109384918" required>
+          <input type="text" id="setupGameId" class="form-control" placeholder="e.g. 109384918" maxlength="64" required>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px;">
-          START PLAYING
+        <button type="submit" class="btn btn-primary" id="authSubmit" style="width: 100%; margin-top: 10px; padding: 12px;">
+          CREATE PLAYER PROFILE
         </button>
       </form>
+      <p style="font-size: 12px; color: var(--text-dim); margin-top: 14px; text-align: center;">This guest profile is saved in this browser. Clearing browser data removes access to it.</p>
+      <button type="button" class="btn btn-outline" id="apiConfigButton" onclick="configureApiUrl()" style="display: none; width: 100%; margin-top: 12px;">CONFIGURE SERVER CONNECTION</button>
     </div>
   </div>
 
@@ -1164,20 +1177,111 @@
 
   <!-- JAVASCRIPT APP LOGIC -->
   <script>
-    // Load Saved User Profile or Null
+    let API_BASE_URL = window.SO2_API_URL || localStorage.getItem('so2_api_url') || (location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+      ? 'http://localhost:4000'
+      : 'https://standoff-arena-backend.onrender.com');
     let currentUser = JSON.parse(localStorage.getItem('so2_player_profile') || 'null');
+    let inQueue = false;
+    let queueMode = null;
+    let queueTimer = null;
+    let secondsInQueue = 0;
+    let activeMatch = null;
+    let activeMatchTimer = null;
 
-    // Initialize UI
-    window.addEventListener('DOMContentLoaded', () => {
-      if (!currentUser) {
-        openModal('welcomeModal');
-      } else {
-        checkAuthState();
-      }
+    window.addEventListener('DOMContentLoaded', async () => {
       renderLeaderboard();
       renderMissions();
       renderMatchHistory();
+      if (!currentUser?.token) {
+        currentUser = null;
+        openModal('welcomeModal');
+        return;
+      }
+
+      try {
+        const token = currentUser.token;
+        const profile = await apiRequest('/api/auth/me');
+        currentUser = { ...profile, token };
+        saveCurrentUser();
+        checkAuthState();
+        await restoreMatchmakingState();
+      } catch (error) {
+        checkAuthState();
+        const message = error.status === 401
+          ? 'This guest session has expired. Its profile cannot be recovered.'
+          : 'Matchmaking service is unavailable. Your browser profile was kept.';
+        showToast(message, 'fa-triangle-exclamation');
+      }
     });
+
+    async function apiRequest(path, options = {}) {
+      let response;
+      try {
+        response = await fetch(`${API_BASE_URL}${path}`, {
+          ...options,
+          headers: {
+            'Content-Type': 'application/json',
+            ...(currentUser?.token ? { Authorization: `Bearer ${currentUser.token}` } : {}),
+            ...options.headers
+          },
+          body: options.body && typeof options.body !== 'string' ? JSON.stringify(options.body) : options.body
+        });
+      } catch {
+        document.getElementById('apiConfigButton').style.display = 'block';
+        throw new Error(`Cannot reach the matchmaking API at ${API_BASE_URL}. Check that the backend is deployed at this URL and allows this site's origin.`);
+      }
+      const responseText = await response.text();
+      let data = {};
+      try {
+        data = responseText ? JSON.parse(responseText) : {};
+      } catch {
+        data = {};
+      }
+      if (!response.ok) {
+        if (response.status === 404 || response.status >= 500) {
+          document.getElementById('apiConfigButton').style.display = 'block';
+        }
+        const message = typeof data.error === 'string'
+          ? data.error
+          : `API returned HTTP ${response.status} for ${path} at ${API_BASE_URL}. Check the backend URL and deployment.`;
+        const error = new Error(message);
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    async function configureApiUrl() {
+      const enteredUrl = prompt('Paste the API base URL shown for your backend service in Render:');
+      if (!enteredUrl) return;
+
+      let url;
+      try {
+        url = new URL(enteredUrl.trim());
+      } catch {
+        showToast('Enter a valid backend URL, including https://.', 'fa-triangle-exclamation');
+        return;
+      }
+      if (!['https:', 'http:'].includes(url.protocol)) {
+        showToast('Backend URL must use HTTPS or HTTP.', 'fa-triangle-exclamation');
+        return;
+      }
+
+      API_BASE_URL = url.origin;
+      try {
+        const response = await fetch(`${API_BASE_URL}/health`);
+        if (!response.ok) throw new Error(`Health check returned HTTP ${response.status}`);
+        localStorage.setItem('so2_api_url', API_BASE_URL);
+        document.getElementById('apiConfigButton').style.display = 'none';
+        showToast('Backend connection saved.', 'fa-circle-check');
+      } catch (error) {
+        showToast(`Could not verify this backend URL: ${error.message}`, 'fa-triangle-exclamation');
+      }
+    }
+
+    function saveCurrentUser() {
+      localStorage.setItem('so2_player_profile', JSON.stringify(currentUser));
+    }
 
     // View Routing
     function switchView(tabId) {
@@ -1211,41 +1315,35 @@
       setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    // Handle First Time Setup
-    function handleInitialSetup(e) {
+    async function handleInitialSetup(e) {
       e.preventDefault();
       const username = document.getElementById('setupUsername').value.trim();
       const gameId = document.getElementById('setupGameId').value.trim();
+      const submit = document.getElementById('authSubmit');
+      submit.disabled = true;
 
-      if (!username || !gameId) {
-        showToast('Please fill all fields', 'fa-triangle-exclamation');
-        return;
+      try {
+        const result = await apiRequest('/api/auth/guest', {
+          method: 'POST',
+          body: { username, gameId }
+        });
+        currentUser = { ...result.user, token: result.token };
+
+        saveCurrentUser();
+        closeModals();
+        checkAuthState();
+        renderLeaderboard();
+        showToast(`Welcome ${currentUser.username}!`, 'fa-circle-check');
+      } catch (error) {
+        showToast(error.message, 'fa-triangle-exclamation');
+      } finally {
+        submit.disabled = false;
       }
-
-      currentUser = {
-        username: username,
-        gameId: gameId,
-        wins: 0,
-        losses: 0
-      };
-
-      localStorage.setItem('so2_player_profile', JSON.stringify(currentUser));
-      closeModals();
-      checkAuthState();
-      renderLeaderboard();
-      showToast(`Welcome ${username}! Profile created.`, 'fa-circle-check');
     }
 
     // Auth & Profile State
     function checkAuthState() {
-      if (!currentUser) {
-        currentUser = {
-          username: 'Agent_' + Math.floor(1000 + Math.random() * 9000),
-          gameId: '109384918',
-          wins: 0,
-          losses: 0
-        };
-      }
+      if (!currentUser) return;
 
       // Top Navbar Badge
       document.getElementById('badgeUsername').textContent = currentUser.username;
@@ -1266,7 +1364,7 @@
     }
 
     // Save Profile Changes
-    function saveProfileChanges() {
+    async function saveProfileChanges() {
       const newName = document.getElementById('editUsername').value.trim();
       const newId = document.getElementById('editGameId').value.trim();
 
@@ -1275,97 +1373,223 @@
         return;
       }
 
-      currentUser.username = newName;
-      currentUser.gameId = newId;
-      localStorage.setItem('so2_player_profile', JSON.stringify(currentUser));
-      checkAuthState();
-      renderLeaderboard();
-      showToast('Profile updated successfully!', 'fa-circle-check');
-    }
-
-    // Matchmaking Queue
-    let inQueue = false;
-    let queueTimer = null;
-    let secondsInQueue = 0;
-
-    function toggleQueue(mode) {
-      const btn = mode === 'FIVE_VS_FIVE' ? document.getElementById('btnQueue5v5') : document.getElementById('btnQueue2v2');
-      const card = mode === 'FIVE_VS_FIVE' ? document.getElementById('card5v5') : document.getElementById('card2v2');
-
-      if (inQueue) {
-        clearInterval(queueTimer);
-        inQueue = false;
-        btn.innerHTML = `<i class="fa-solid fa-play"></i> QUEUE ${mode === 'FIVE_VS_FIVE' ? '5V5 (SOLO/PARTY)' : '2V2 WINGMAN'}`;
-        card.classList.remove('active-queue');
-        showToast('Left matchmaking queue');
-      } else {
-        inQueue = true;
-        secondsInQueue = 0;
-        card.classList.add('active-queue');
-        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> SEARCHING... (0:00)`;
-        showToast(`Searching for balanced ${mode === 'FIVE_VS_FIVE' ? '5v5' : '2v2'} match...`, 'fa-crosshairs');
-
-        queueTimer = setInterval(() => {
-          secondsInQueue++;
-          const mins = Math.floor(secondsInQueue / 60);
-          const secs = secondsInQueue % 60;
-          btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> SEARCHING... (${mins}:${secs < 10 ? '0' : ''}${secs})`;
-
-          // Simulate match found after 3 seconds
-          if (secondsInQueue >= 3) {
-            clearInterval(queueTimer);
-            inQueue = false;
-            btn.innerHTML = `<i class="fa-solid fa-play"></i> QUEUE ${mode === 'FIVE_VS_FIVE' ? '5V5 (SOLO/PARTY)' : '2V2 WINGMAN'}`;
-            card.classList.remove('active-queue');
-            triggerMatchFound(mode);
-          }
-        }, 1000);
+      try {
+        const profile = await apiRequest('/api/users/me', {
+          method: 'PATCH',
+          body: { username: newName, gameId: newId }
+        });
+        currentUser = { ...currentUser, ...profile };
+        saveCurrentUser();
+        checkAuthState();
+        renderLeaderboard();
+        showToast('Profile updated successfully!', 'fa-circle-check');
+      } catch (error) {
+        showToast(error.message, 'fa-triangle-exclamation');
       }
     }
 
-    function triggerMatchFound(mode) {
-      showToast('MATCH FOUND! Entering Map Veto Phase...', 'fa-fire');
-      document.getElementById('modesSection').style.display = 'none';
-      document.getElementById('activeMatchRoom').style.display = 'block';
+    async function toggleQueue(mode) {
+      if (!currentUser?.token) {
+        openModal('welcomeModal');
+        showToast('Create a player profile to join matchmaking.', 'fa-user-lock');
+        return;
+      }
 
-      // Setup team rosters with current player's name
-      const myName = currentUser?.username || 'You';
-      document.getElementById('teamAPlayersList').innerHTML = `
-        <div class="player-row"><span>${myName} <span class="captain-tag">CAPTAIN</span></span> <b style="color: var(--success);">READY</b></div>
-        <div class="player-row"><span>Apex_Ruler</span> <b style="color: var(--success);">READY</b></div>
-        <div class="player-row"><span>SilentGhost</span> <b style="color: var(--success);">READY</b></div>
-        <div class="player-row"><span>FlashBang99</span> <b style="color: var(--success);">READY</b></div>
-        <div class="player-row"><span>CyberDemon</span> <b style="color: var(--success);">READY</b></div>
-      `;
-
-      document.getElementById('teamBPlayersList').innerHTML = `
-        <div class="player-row"><span>ShadowViper <span class="captain-tag">CAPTAIN</span></span> <b style="color: var(--success);">READY</b></div>
-        <div class="player-row"><span>KevlarHead</span> <b style="color: var(--success);">READY</b></div>
-        <div class="player-row"><span>NeonStrike</span> <b style="color: var(--success);">READY</b></div>
-        <div class="player-row"><span>FrostByte</span> <b style="color: var(--success);">READY</b></div>
-        <div class="player-row"><span>VortexSO2</span> <b style="color: var(--success);">READY</b></div>
-      `;
+      try {
+        if (inQueue) {
+          await apiRequest('/api/matchmaking/leave', { method: 'POST', body: { mode: queueMode } });
+          stopQueuePolling();
+          showToast('Left matchmaking queue.');
+        } else {
+          await apiRequest('/api/matchmaking/join', { method: 'POST', body: { mode } });
+          inQueue = true;
+          queueMode = mode;
+          secondsInQueue = 0;
+          updateQueueButton();
+          queueTimer = setInterval(() => {
+            secondsInQueue++;
+            updateQueueButton();
+          }, 1000);
+          activeMatchTimer = setInterval(() => pollQueue(mode), 2500);
+          await pollQueue(mode);
+        }
+      } catch (error) {
+        showToast(error.message, 'fa-triangle-exclamation');
+      }
     }
 
-    // Map Veto Logic
-    function banMap(mapName) {
-      const cards = Array.from(document.querySelectorAll('.map-card'));
-      const targetCard = cards.find(c => c.textContent.includes(mapName));
-      if (!targetCard || targetCard.classList.contains('banned')) return;
+    function stopQueuePolling() {
+      clearInterval(queueTimer);
+      clearInterval(activeMatchTimer);
+      queueTimer = null;
+      activeMatchTimer = null;
+      inQueue = false;
+      queueMode = null;
+      document.querySelectorAll('.mode-card').forEach(card => card.classList.remove('active-queue'));
+      updateQueueButton();
+    }
 
-      targetCard.classList.add('banned');
-      showToast(`Map ${mapName} has been BANNED!`, 'fa-ban');
+    function updateQueueButton(position) {
+      ['FIVE_VS_FIVE', 'TWO_VS_TWO'].forEach(mode => {
+        const isFive = mode === 'FIVE_VS_FIVE';
+        const button = document.getElementById(isFive ? 'btnQueue5v5' : 'btnQueue2v2');
+        const card = document.getElementById(isFive ? 'card5v5' : 'card2v2');
+        const selected = inQueue && mode === queueMode;
+        card.classList.toggle('active-queue', selected);
+        button.innerHTML = selected
+          ? `<i class="fa-solid fa-spinner fa-spin"></i> SEARCHING... ${position ? '(#' + position + ')' : ''} (${Math.floor(secondsInQueue / 60)}:${String(secondsInQueue % 60).padStart(2, '0')})`
+          : `<i class="fa-solid fa-play"></i> QUEUE ${isFive ? '5V5 (SOLO/PARTY)' : '2V2 WINGMAN'}`;
+      });
+    }
 
-      const remaining = cards.filter(c => !c.classList.contains('banned'));
-      if (remaining.length === 1) {
-        const picked = remaining[0];
-        picked.classList.add('picked');
-        const finalMap = picked.querySelector('h4').textContent;
-        document.getElementById('finalPickedMap').textContent = finalMap;
-        document.getElementById('matchRoomStatus').textContent = 'MATCH IN PROGRESS';
-        document.getElementById('vetoPhaseSection').style.display = 'none';
-        document.getElementById('roomInGameSection').style.display = 'block';
-        showToast(`Map decided: ${finalMap}! Create lobby in Standoff 2.`, 'fa-trophy');
+    async function pollQueue(mode) {
+      try {
+        const [queue, current] = await Promise.all([
+          apiRequest(`/api/matchmaking/position?mode=${encodeURIComponent(mode)}`),
+          apiRequest('/api/matchmaking/current')
+        ]);
+        if (current.match) {
+          stopQueuePolling();
+          renderMatch(current.match);
+          showToast('Match found. Captains are vetoing maps.', 'fa-fire');
+          return;
+        }
+        if (queue.position < 0) {
+          stopQueuePolling();
+          showToast('You are no longer in the queue.', 'fa-circle-info');
+          return;
+        }
+        updateQueueButton(queue.position);
+      } catch (error) {
+        stopQueuePolling();
+        showToast(error.message, 'fa-triangle-exclamation');
+      }
+    }
+
+    async function restoreMatchmakingState() {
+      const current = await apiRequest('/api/matchmaking/current');
+      if (current.match) {
+        renderMatch(current.match);
+        activeMatchTimer = setInterval(refreshCurrentMatch, 2500);
+        return;
+      }
+
+      for (const mode of ['TWO_VS_TWO', 'FIVE_VS_FIVE']) {
+        const queue = await apiRequest(`/api/matchmaking/position?mode=${mode}`);
+        if (queue.inQueue) {
+          inQueue = true;
+          queueMode = mode;
+          updateQueueButton(queue.position);
+          queueTimer = setInterval(() => {
+            secondsInQueue++;
+            updateQueueButton(queue.position);
+          }, 1000);
+          activeMatchTimer = setInterval(() => pollQueue(mode), 2500);
+          return;
+        }
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[character]);
+    }
+
+    function renderMatch(match) {
+      activeMatch = match;
+      document.getElementById('modesSection').style.display = 'none';
+      document.getElementById('activeMatchRoom').style.display = 'block';
+      document.getElementById('matchRoomTitle').textContent = `MATCH #${match.id}`;
+      document.getElementById('matchRoomModeTag').textContent = match.mode === 'TWO_VS_TWO' ? '2V2 WINGMAN' : '5V5 COMPETITIVE';
+      document.getElementById('matchRoomStatus').textContent = match.status === 'VETO' ? 'MAP VETO PHASE' : 'MATCH IN PROGRESS';
+
+      const teams = {
+        TEAM_A: match.players.filter(player => player.team === 'TEAM_A'),
+        TEAM_B: match.players.filter(player => player.team === 'TEAM_B')
+      };
+      for (const [side, players] of Object.entries(teams)) {
+        const listId = side === 'TEAM_A' ? 'teamAPlayersList' : 'teamBPlayersList';
+        const countId = side === 'TEAM_A' ? 'teamAElo' : 'teamBElo';
+        document.getElementById(countId).textContent = `${players.length} Players`;
+        document.getElementById(listId).innerHTML = players.map(player => `
+          <div class="player-row">
+            <span>${escapeHtml(player.user.username)}${player.isCaptain ? ' <span class="captain-tag">CAPTAIN</span>' : ''}</span>
+            <b style="color: var(--text-muted);">ID ${escapeHtml(player.user.gameId || 'Not linked')}</b>
+          </div>
+        `).join('');
+      }
+
+      const host = match.players.find(player => player.team === 'TEAM_A' && player.isCaptain)?.user;
+      document.getElementById('lobbyHostName').textContent = host?.username || 'Unavailable';
+      document.getElementById('lobbyHostGameId').textContent = host?.gameId || 'Unavailable';
+      document.getElementById('finalPickedMap').textContent = match.map;
+
+      const bans = match.vetoBans || [];
+      const expectedTeam = bans.length % 2 === 0 ? 'TEAM_A' : 'TEAM_B';
+      const myPlayer = match.players.find(player => player.userId === currentUser.id);
+      const canBan = match.status === 'VETO' && myPlayer?.isCaptain && myPlayer.team === expectedTeam;
+      const teamLabel = expectedTeam === 'TEAM_A' ? 'Alpha' : 'Bravo';
+      document.getElementById('vetoTurnLabel').textContent = canBan
+        ? `Your turn (${teamLabel} Captain)`
+        : `${teamLabel} Captain's Turn`;
+      document.getElementById('vetoPhaseSection').style.display = match.status === 'VETO' ? '' : 'none';
+      document.getElementById('roomInGameSection').style.display = match.status === 'IN_PROGRESS' ? 'block' : 'none';
+
+      document.querySelectorAll('.map-card').forEach(card => {
+        const mapName = card.querySelector('h4').textContent;
+        const banned = bans.some(ban => ban.map === mapName);
+        card.classList.toggle('banned', banned);
+        card.classList.toggle('picked', match.status === 'IN_PROGRESS' && match.map === mapName);
+        card.classList.toggle('disabled', !canBan || banned);
+        card.onclick = canBan && !banned ? () => banMap(mapName) : null;
+      });
+
+      if (!activeMatchTimer && match.status !== 'COMPLETED') {
+        activeMatchTimer = setInterval(refreshCurrentMatch, 2500);
+      }
+    }
+
+    async function refreshCurrentMatch() {
+      try {
+        const current = await apiRequest('/api/matchmaking/current');
+        if (!current.match) {
+          clearInterval(activeMatchTimer);
+          activeMatchTimer = null;
+          activeMatch = null;
+          document.getElementById('activeMatchRoom').style.display = 'none';
+          document.getElementById('modesSection').style.display = 'block';
+          return;
+        }
+        renderMatch(current.match);
+      } catch (error) {
+        showToast(error.message, 'fa-triangle-exclamation');
+      }
+    }
+
+    async function banMap(mapName) {
+      if (!activeMatch) return;
+      try {
+        await apiRequest(`/api/matches/${encodeURIComponent(activeMatch.id)}/veto`, {
+          method: 'POST',
+          body: { map: mapName }
+        });
+        showToast(`${mapName} banned.`, 'fa-ban');
+        await refreshCurrentMatch();
+      } catch (error) {
+        showToast(error.message, 'fa-triangle-exclamation');
+        await refreshCurrentMatch();
+      }
+    }
+
+    async function copyHostGameId() {
+      const gameId = document.getElementById('lobbyHostGameId').textContent;
+      if (!gameId || gameId === 'Unavailable') return;
+      try {
+        await navigator.clipboard.writeText(gameId);
+        showToast('Host game ID copied.', 'fa-copy');
+      } catch {
+        showToast(`Host game ID: ${gameId}`, 'fa-gamepad');
       }
     }
 

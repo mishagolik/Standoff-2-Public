@@ -20,6 +20,16 @@ services:
         fromDatabase:
           name: standoff-db
           property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: standoff-redis
+          property: connectionString
+
+  - type: keyvalue
+    name: standoff-redis
+    plan: starter
+    ipAllowList: []
 
 databases:
   - name: standoff-db
