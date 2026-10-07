@@ -2,10 +2,10 @@ services:
   - type: web
     name: standoff-arena-backend
     env: node
+    plan: free
     rootDir: backend
-    buildCommand: npm install && npx prisma generate && npm run build
-    preDeployCommand: npx prisma db push --accept-data-loss
-    startCommand: npm run start
+    buildCommand: npm install --include=dev && npx prisma generate && npm run build
+    startCommand: npx prisma db push --accept-data-loss && npm run start
     envVars:
       - key: NODE_ENV
         value: production
@@ -25,10 +25,11 @@ services:
 
   - type: keyvalue
     name: standoff-redis
-    plan: starter
+    plan: free
     ipAllowList: []
 
 databases:
   - name: standoff-db
+    plan: free
     databaseName: standoff_arena
     user: arena_admin
